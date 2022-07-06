@@ -1,0 +1,707 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/null">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="ZhaoYanguang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="lab3实验报告1.实验思考题Thinking3.1 为什么envid2env 中需要判断e-&gt;env_id !&#x3D; envid 的情况？如果没有这步判断会发生什么情况？   由(asid &lt;&lt; (1 + LOG2NENV)) | (1 &lt;&lt; LOG2NENV) | idx;可知，一个envid由两部分组成，高位的ASID和低位的进程块偏移量。而当我们通过en">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OSlab3实验报告">
+<meta property="og:url" content="https://guangstrip.github.io/20220515/OSlab3%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/index.html">
+<meta property="og:site_name" content="光">
+<meta property="og:description" content="lab3实验报告1.实验思考题Thinking3.1 为什么envid2env 中需要判断e-&gt;env_id !&#x3D; envid 的情况？如果没有这步判断会发生什么情况？   由(asid &lt;&lt; (1 + LOG2NENV)) | (1 &lt;&lt; LOG2NENV) | idx;可知，一个envid由两部分组成，高位的ASID和低位的进程块偏移量。而当我们通过en">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guangstrip.github.io/20220515/OSlab3%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/Load_icode_mapper.png">
+<meta property="og:image" content="https://guangstrip.github.io/20220515/OSlab3%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/image-20220515145132242.png">
+<meta property="og:image" content="https://guangstrip.github.io/20220515/OSlab3%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/image-20220515151600256.png">
+<meta property="og:image" content="https://guangstrip.github.io/20220515/OSlab3%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/image-20220515153916980.png">
+<meta property="article:published_time" content="2022-05-15T03:31:37.000Z">
+<meta property="article:modified_time" content="2022-07-06T10:42:34.769Z">
+<meta property="article:author" content="ZhaoYanguang">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://guangstrip.github.io/20220515/OSlab3%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/Load_icode_mapper.png">
+  
+  
+  
+  <title>OSlab3实验报告 - 光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"guangstrip.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="OSlab3实验报告"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-05-15 11:31" pubdate>
+          2022年5月15日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          31 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">OSlab3实验报告</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="lab3实验报告"><a href="#lab3实验报告" class="headerlink" title="lab3实验报告"></a>lab3实验报告</h2><h3 id="1-实验思考题"><a href="#1-实验思考题" class="headerlink" title="1.实验思考题"></a>1.实验思考题</h3><h5 id="Thinking3-1"><a href="#Thinking3-1" class="headerlink" title="Thinking3.1"></a>Thinking3.1</h5><blockquote>
+<p><strong>为什么envid2env 中需要判断e-&gt;env_id !&#x3D; envid 的情况？如果没有这步判断会发生什么情况？</strong></p>
+</blockquote>
+<ul>
+<li>由<code>(asid &lt;&lt; (1 + LOG2NENV)) | (1 &lt;&lt; LOG2NENV) | idx;</code>可知，一个envid由两部分组成，<strong>高位的ASID和低位的进程块偏移量</strong>。而当我们通过<code>envid2env</code>取进程块时只是通过<code>ENVX(envid)</code>即低位的进程块偏移量<code>idx</code>来获取进程块<code>i</code>，并不能保证高位的ASID相匹配，也即不能保证找到的是对应的目的进程块，因此需要判断<code>e-&gt;env_id != envid</code>的情况。若<code>e-&gt;env_id != envid</code>成立，说明该envid指向的进程根本不存在，需要报错。</li>
+</ul>
+<h5 id="Thinking3-2"><a href="#Thinking3-2" class="headerlink" title="Thinking3.2"></a>Thinking3.2</h5><blockquote>
+<p><strong>结合include&#x2F;mmu.h 中的地址空间布局，思考env_setup_vm 函数：</strong></p>
+<p><strong>• UTOP 和ULIM 的含义分别是什么，UTOP 和ULIM 之间的区域与UTOP以下的区域相比有什么区别？</strong></p>
+<p><strong>• 请结合系统自映射机制解释代码中pgdir[PDX(UVPT)]&#x3D;env_cr3的含义。</strong></p>
+<p><strong>• 谈谈自己对进程中物理地址和虚拟地址的理解。</strong></p>
+</blockquote>
+<ul>
+<li><code>UTOP</code>是用户可读写的最高地址，<code>ULIM</code>是用户可访问但不可写的最高地址，<code>UTOP</code>和<code>ULIM</code>之间的区域相比于<code>UTOP</code>以下的区域缺少了可写性，是只读的，前者所存储的页表，进程块等内容可供于用户读取，但不能修改。</li>
+<li>通过系统自映射机制,<code>UVPT</code>指的是虚拟地址的页目录地址，而<code>pgdir[PDX(UVPT)]</code>则是自映射机制中，页目录存储所在的页目录项，通过<code>pgdir[PDX(UVPT)]=env_cr3</code>我们将<strong>页目录的物理地址</strong>与虚拟地址中的页目录项相关联，方便页表信息的读取。</li>
+<li>进程中的物理地址和虚拟地址<ul>
+<li>每个进程都有自己的一套虚拟地址且各进程间相互独立，使得程序能够自由使用内存；而物理地址则是唯一且有限的，它担当了实际存储内容的角色。这两者间，虚拟内存通过映射到物理内存上实现存储。不同进程间的虚拟地址可映射到相同的物理地址，从实现进程间数据<strong>共享</strong>等功能。</li>
+</ul>
+</li>
+</ul>
+<h5 id="Thinking3-3"><a href="#Thinking3-3" class="headerlink" title="Thinking3.3"></a>Thinking3.3</h5><blockquote>
+<p>找到 user_data 这一参数的来源，思考它的作用。没有这个参数可不可以？为什么？（可以尝试说明实际的应用场景，举一个实际的库中的例子）</p>
+</blockquote>
+<ul>
+<li><code>user_data</code>在<code>load_icode</code>和<code>load_elf</code>中传入了进程e，在<code>load_icode_mapper</code>中被用于<code>struct Env *env = (struct Env *)user_data;</code>作为<strong>镜像载入的目的进程</strong>。可见<code>user_data</code>就是一个传入进程指针的角色，是必不可少的参数。许多场景都会传入指针用于引用某个东西，例如qsort里面就传入<code>compare</code>函数的指针用于重定义比较格式。</li>
+</ul>
+<h5 id="Thinking3-4"><a href="#Thinking3-4" class="headerlink" title="Thinking3.4"></a>Thinking3.4</h5><blockquote>
+<p><strong>结合load_icode_mapper 的参数以及二进制镜像的大小，考虑该函数可能会面临哪几种复制的情况？你是否都考虑到了？</strong> </p>
+</blockquote>
+<p>最糟糕的情况如图所示</p>
+<p><img src="/20220515/OSlab3%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/Load_icode_mapper.png" srcset="/img/loading.gif" lazyload alt="每个segment的加载地址布局"></p>
+<p>​	其原因都是由于复制的内容与页面不对齐所导致，一是.text&amp;.data<code>或</code>.<code>bss</code>段的开头部分不与页面对齐，二是在结束部分不对齐多出一截，均需要找到或新建对应页面进行关联。</p>
+<h5 id="Thinking3-5"><a href="#Thinking3-5" class="headerlink" title="Thinking3.5"></a>Thinking3.5</h5><blockquote>
+<p><strong>•</strong> <strong>你认为这里的 env_tf.pc 存储的是物理地址还是虚拟地址?</strong></p>
+<p><strong>• 你觉得entry_point其值对于每个进程是否一样？该如何理解这种统一或不同？</strong></p>
+</blockquote>
+<ul>
+<li>应该是虚拟地址，因为程序所能看到的应该是虚拟地址，是连续的，通过程序预存储，系统将对应指令放在虚拟地址某一位置，通过PC指向该地址来运行。而物理地址是共享且不连续的，显然不会是物理地址。</li>
+<li>entry_point其值对于每个进程<strong>一样</strong>，代码段在每个进程中应存在虚拟内存中的同一个位置，使得虚拟内存的分段管理有序。</li>
+</ul>
+<h5 id="Thinking3-6"><a href="#Thinking3-6" class="headerlink" title="Thinking3.6"></a>Thinking3.6</h5><blockquote>
+<p><strong>请查阅相关资料解释，上面提到的epc是什么？为什么要将env_tf.pc设置为epc呢？</strong></p>
+</blockquote>
+<p>​	epc即是我们进程处理切换回来时，所继续执行的指令所在的地址，env-tf是Env进程块中存储进程上下文的成员，将env_tf.pc设置为epc，使得进程<strong>切换回来</strong>的时候可以将pc设置为epc，继续完成未完成的程序。</p>
+<h5 id="Thinking3-7"><a href="#Thinking3-7" class="headerlink" title="Thinking3.7"></a>Thinking3.7</h5><blockquote>
+<p><strong>•</strong> <strong>操作系统在何时将什么内容存到了 TIMESTACK 区域</strong></p>
+<p><strong>•</strong> <strong>TIMESTACK 和 env_asm.S 中所定义的 KERNEL_SP 的含义有何不同</strong></p>
+</blockquote>
+<ul>
+<li><p>操作系统在<code>env_destroy</code>中，将一个<code>Trapframe</code>的的内容从<code>KERNEL_SP</code>复制到了<code>TIMESTACK</code>中。</p>
+</li>
+<li><pre><code class="hljs">.macro get_sp
+        mfc0    k1, CP0_CAUSE
+        andi    k1, 0x107C
+        xori    k1, 0x1000
+        bnez    k1, 1f
+        nop
+        li      sp, 0x82000000
+        j       2f
+        nop
+1:
+        bltz    sp, 2f
+        nop
+        lw      sp, KERNEL_SP
+        nop
+
+2:      nop
+<figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs autohotkey"><br>  ​	通过该段汇编代码我们可知，当发生的为时钟中断时，我们就选取`TIMESTACK`地址，而其余则是使用`KERNEL_SP`的地址。当我们处理异常时调用`SAVE_ALL`时就会根据是否为时钟中断来选取保存寄存器上下文的位置。<br><br>##### Thinking3.<span class="hljs-number">8</span><br><br>&gt; **试找出上述 <span class="hljs-number">5</span> 个异常处理函数的具体实现位置。**<br><br>- <span class="hljs-number">0</span>号异常：handle_int` 在`lib/genex.S`通过汇编语言编写了该处理函数<br>- <span class="hljs-number">1</span>号异常：`handle_mod` 在`lib/trap.c`中用C编写了`page_fault_handler`函数，然后在`lib/genex.S`中用`BUILD_HANDLER`宏创建了该函数<br>- <span class="hljs-number">2</span>、<span class="hljs-number">3</span>号异常：`handle_tlb` 在`lib/genex.S`中编写了`do_refill`函数，然后在`lib/genex.S`中用`BUILD_HANDLER`宏创建了该函数<br>- <span class="hljs-number">8</span>号异常：`handle_sys` 在`lib/syscall.S`中用汇编语言编写了该函数<br><br>##### Thinking3.<span class="hljs-number">9</span><br><br>&gt; **阅读 kclock_asm.S 和 genex.S 两个文件，并尝试说出 set_timer 和timer_irq 函数中每行汇编代码的作用**<br><br>- **kclock_asm.S**<br><br>  ```assembly<br>  LEAF(set_timer)<br>          li t0, <span class="hljs-number">0</span>xc8		<br>          sb t0, <span class="hljs-number">0</span>xb5000100			#向<span class="hljs-number">0</span>xb5000100写入<span class="hljs-number">0</span>xc8，控制时钟频率<br>          sw      sp, KERNEL_SP		#将sp寄存器的值写入KERNEL_SP中，保存sp的值<br>  setup_c0_status STATUS_CU0|<span class="hljs-number">0</span>x1001 <span class="hljs-number">0</span>	#设置CP0_STATUS的值<br>          jr ra						#返回调用处<br>          nop<br>  END(set_timer)<br></code></pre></td></tr></table></figure>
+</code></pre>
+</li>
+<li><p><strong>genex.S</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">timer_irq:<br>        sb zero, 0xb5000110			#拒绝外设请求中断，保证时钟中断正常执行<br>1:      j       sched_yield			#跳转到sched_yield函数进行进程调度<br>        nop<br>        j       ret_from_exception	#跳转到ret_from_exception函数，从而退出异常<br>        nop<br></code></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="Thinking3-10"><a href="#Thinking3-10" class="headerlink" title="Thinking3.10"></a>Thinking3.10</h5><blockquote>
+<p>阅读相关代码，思考操作系统是怎么根据时钟周期切换进程的。</p>
+</blockquote>
+<p>​	虽然我们在编写<code>sched_yield</code>函数的时候使用了两个队列，但本质上其实就是有一个进程的等待队列，所有可执行的进程在其中排队。我们把每一次时钟中断看作度过了一次时间片，每当时钟中断发生，检查一下当前的进程的还有无时间片，若有则让其继续执行，若无则将其放到等待队列队尾，取出队首的下一个进程，为其分配时间片数，然后让该进程运行，循环往复从而实现了进程的调度与切换。</p>
+<h3 id="2-实验难点图示"><a href="#2-实验难点图示" class="headerlink" title="2.实验难点图示"></a>2.实验难点图示</h3><h5 id="1-进程的创建过程"><a href="#1-进程的创建过程" class="headerlink" title="1.进程的创建过程"></a>1.进程的创建过程</h5><p>​	下图为用户创建进程的过程，我们假设<code>env_init</code>的进程块初始化已经完成。</p>
+<p><img src="/20220515/OSlab3%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/image-20220515145132242.png" srcset="/img/loading.gif" lazyload alt="image-20220515145132242"></p>
+<h5 id="2-异常的分发"><a href="#2-异常的分发" class="headerlink" title="2.异常的分发"></a>2.异常的分发</h5><p><img src="/20220515/OSlab3%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/image-20220515151600256.png" srcset="/img/loading.gif" lazyload alt="image-20220515151600256"></p>
+<h5 id="3-时钟中断与进程调度"><a href="#3-时钟中断与进程调度" class="headerlink" title="3.时钟中断与进程调度"></a>3.时钟中断与进程调度</h5><p><img src="/20220515/OSlab3%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/image-20220515153916980.png" srcset="/img/loading.gif" lazyload alt="image-20220515153916980"></p>
+<h3 id="3-体会与感想"><a href="#3-体会与感想" class="headerlink" title="3.体会与感想"></a>3.体会与感想</h3><p>​	这几周lab3的学习与上机，让我逐渐感到操作系统学习渐入佳境，特别是不同于前两个lab的有点搞不清楚自己在干什么，lab3的学习让我开始逐渐理解了操作系统背后的逻辑与运转模式。但同时这也与前两个lab学习所打下的基础密不可分，在lab3的学习中，经常有的一种感受就是，原本被略显繁杂的各个函数绕晕了，但细细整理后豁然开朗，理解了每个操作的目的所在。</p>
+<p>​	实践证明了做笔记与整理对于操作系统这门课是有巨大助益的，在lab3的两次上机前，我都对课下的内容进行了梳理和记录，这使得我在上机的过程中能清晰地把握原有的系统脉络，更好地去实现课上所需要实现的内容（虽然还是很惊险在最后1min才过），同时这样也使得我对其的理解加深，记忆的难度也下降了。因此在后续的lab中我要继续做好整理和记录，以及着手于理论课的整理，想必会对后续的学习起到很好的助益。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" class="category-chain-item">操作系统实验报告</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>OSlab3实验报告</div>
+      <div>https://guangstrip.github.io/20220515/OSlab3实验报告/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>ZhaoYanguang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年5月15日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/">
+              <span class="hint--top hint--rounded" aria-label="SA - 相同方式共享">
+                <i class="iconfont icon-sa"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/20220525/OSlab4%E7%AC%94%E8%AE%B0/" title="OSlab4笔记">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">OSlab4笔记</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/20220511/OSlab3%E7%AC%94%E8%AE%B0/" title="OSlab3笔记">
+                        <span class="hidden-mobile">OSlab3笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

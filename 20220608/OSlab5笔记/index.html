@@ -1,0 +1,736 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/null">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="ZhaoYanguang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="lab5笔记杂记fsformat.c实现对磁盘模拟的整体规划，fs.c实现磁盘到内存的交互 fsformat可以理解为每挂载一个磁盘时，就会运行一次，在fsformat的主函数中可以看到通过命令行对磁盘镜像进行了设置。disk是针对当前这一磁盘处理时显式的磁盘块。 前置设定123456&#x2F;&#x2F;一些宏#define BY2BLK		BY2PG &#x2F;&#x2F;一个块的大小正好是一页4096Byte#define B">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OSlab5笔记">
+<meta property="og:url" content="https://guangstrip.github.io/20220608/OSlab5%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="光">
+<meta property="og:description" content="lab5笔记杂记fsformat.c实现对磁盘模拟的整体规划，fs.c实现磁盘到内存的交互 fsformat可以理解为每挂载一个磁盘时，就会运行一次，在fsformat的主函数中可以看到通过命令行对磁盘镜像进行了设置。disk是针对当前这一磁盘处理时显式的磁盘块。 前置设定123456&#x2F;&#x2F;一些宏#define BY2BLK		BY2PG &#x2F;&#x2F;一个块的大小正好是一页4096Byte#define B">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guangstrip.github.io/20220608/OSlab5%E7%AC%94%E8%AE%B0/lab5-pic-3.png">
+<meta property="article:published_time" content="2022-06-08T10:40:57.000Z">
+<meta property="article:modified_time" content="2022-07-06T10:48:48.748Z">
+<meta property="article:author" content="ZhaoYanguang">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://guangstrip.github.io/20220608/OSlab5%E7%AC%94%E8%AE%B0/lab5-pic-3.png">
+  
+  
+  
+  <title>OSlab5笔记 - 光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"guangstrip.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="OSlab5笔记"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-06-08 18:40" pubdate>
+          2022年6月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          94 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">OSlab5笔记</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="lab5笔记"><a href="#lab5笔记" class="headerlink" title="lab5笔记"></a>lab5笔记</h1><h2 id="杂记"><a href="#杂记" class="headerlink" title="杂记"></a>杂记</h2><p>fsformat.c实现对磁盘模拟的整体规划，fs.c实现磁盘到内存的交互</p>
+<p>fsformat可以理解为每挂载一个磁盘时，就会运行一次，在fsformat的主函数中可以看到通过命令行对磁盘镜像进行了设置。disk是针对当前这一磁盘处理时显式的磁盘块。</p>
+<h2 id="前置设定"><a href="#前置设定" class="headerlink" title="前置设定"></a>前置设定</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">//一些宏</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BY2BLK		BY2PG <span class="hljs-comment">//一个块的大小正好是一页4096Byte</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BIT2BLK		(BY2BLK*8) <span class="hljs-comment">//这里算的是BLK的bit，所以自然是*8</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BY2FILE     256 <span class="hljs-comment">//一个file结构体的大小 256Byte</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NBLOCK 1024  <span class="hljs-comment">//一个disk里面有1024块</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FILE2BLK  (BY2BLK/sizeof(struct File)) <span class="hljs-comment">//一个块里面有多少个file结构体</span></span><br></code></pre></td></tr></table></figure>
+
+<h4 id="磁盘模拟"><a href="#磁盘模拟" class="headerlink" title="磁盘模拟"></a>磁盘模拟</h4><p>在<code>fs/fsformat.c</code>中对磁盘进行了模拟，读取数据的时候可以通过<code>(disk[i].data)[j]</code>的形式来读取</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Block</span> &#123;</span><br>    <span class="hljs-type">uint8_t</span> data[BY2BLK]; <span class="hljs-comment">//数据存储区 4096B</span><br>    <span class="hljs-type">uint32_t</span> type; <span class="hljs-comment">//磁盘块类型</span><br>&#125; disk[NBLOCK];<br></code></pre></td></tr></table></figure>
+
+<h4 id="磁盘块类型"><a href="#磁盘块类型" class="headerlink" title="磁盘块类型"></a>磁盘块类型</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    BLOCK_FREE  = <span class="hljs-number">0</span>,<br>    BLOCK_BOOT  = <span class="hljs-number">1</span>,<br>    BLOCK_BMAP  = <span class="hljs-number">2</span>,<br>    BLOCK_SUPER = <span class="hljs-number">3</span>,<br>    BLOCK_DATA  = <span class="hljs-number">4</span>,<br>    BLOCK_FILE  = <span class="hljs-number">5</span>,<br>    BLOCK_INDEX = <span class="hljs-number">6</span>,<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<h2 id="磁盘文件系统布局"><a href="#磁盘文件系统布局" class="headerlink" title="磁盘文件系统布局"></a>磁盘文件系统布局</h2><p>MOS 操作系统把磁盘最开始的一个磁盘块 (4096 字节) 当作启动扇区和分区表使用。接下来的一个磁盘块作为超级块 </p>
+<h3 id="文件信息存储"><a href="#文件信息存储" class="headerlink" title="文件信息存储"></a>文件信息存储</h3><h4 id="File结构体"><a href="#File结构体" class="headerlink" title="File结构体"></a>File结构体</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">File</span> &#123;</span><br>    u_char f_name[MAXNAMELEN]; <span class="hljs-comment">//文件名，MAXNAMELEN是最大长度</span><br>    u_int f_size; <span class="hljs-comment">//文件大小</span><br>    u_int f_type; <span class="hljs-comment">//文件类型：普通文件、文件夹</span><br>    u_int f_direct[NDIRECT]; <span class="hljs-comment">//直接指针</span><br>    u_int f_indirect; <span class="hljs-comment">//间接指针</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">File</span> *<span class="hljs-title">f_dir</span>;</span> <span class="hljs-comment">//指向文件所属的文件目录</span><br>    u_char f_pad[BY2FILE - MAXNAMELEN - <span class="hljs-number">4</span> - <span class="hljs-number">4</span> - NDIRECT * <span class="hljs-number">4</span> - <span class="hljs-number">4</span> - <span class="hljs-number">4</span>]; <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>NDIRECT &#x3D; 10 即最多有10个直接指针，若文件大于40KB，则需要通过<code>f_indirect</code>指向一个间接磁盘块，用来存储剩余的间接指针。另外，为了简化，间接磁盘块中前十个指针会空出来，假装是直接指针占用了。</li>
+<li>f_pad 是为了让File的大小规范化，使其大小为BY2FILE 256B，一个磁盘块能刚好存16个文件控制块。</li>
+</ul>
+<p><img src="/20220608/OSlab5%E7%AC%94%E8%AE%B0/lab5-pic-3.png" srcset="/img/loading.gif" lazyload alt="[lab5-file block]"></p>
+<h4 id="文件查找过程"><a href="#文件查找过程" class="headerlink" title="文件查找过程"></a>文件查找过程</h4><ul>
+<li>目录文件指向的磁盘块存储着各个文件对应的文件控制块<ul>
+<li>从超级块中读根目录的文件控制块</li>
+<li>文件控制块 –&gt; 通过指针到达对应磁盘块 –&gt;获取下一文件控制块 （在这磁盘块是存储文件控制块的地方）</li>
+<li>最终找到文件</li>
+</ul>
+</li>
+</ul>
+<h4 id="Exe5-4-create-file函数"><a href="#Exe5-4-create-file函数" class="headerlink" title="Exe5.4 create_file函数"></a>Exe5.4 create_file函数</h4><p>​	该函数通关传入的目录指针，在该目录下创建一个文件。<strong>实际上就是在该目录下找一个空文件块，返回其指针，其余的操作概不负责。</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">struct</span> File *<span class="hljs-title function_">create_file</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> File *dirf)</span> &#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">File</span> *<span class="hljs-title">dirblk</span>;</span><br>    <span class="hljs-type">int</span> i, bno, found, j;<br>    <span class="hljs-type">int</span> nblk = dirf-&gt;f_size / BY2BLK; <span class="hljs-comment">//先根据目录大小获得磁盘块的个数</span><br>        <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; nblk; i++) &#123; <br>                <span class="hljs-keyword">if</span> (i &lt; NDIRECT) &#123;<br>                        bno = dirf-&gt;f_direct[i]; <span class="hljs-comment">//直接指针直接取</span><br>                &#125; <span class="hljs-keyword">else</span> &#123; <span class="hljs-comment">//简介指针需要到指向的磁盘块获得相应指针</span><br>                        bno = ((<span class="hljs-type">uint32_t</span> *)(disk[dirf-&gt;f_indirect].data))[i];<br>                &#125;<br>                dirblk = (<span class="hljs-keyword">struct</span> File *)(disk[bno].data); <span class="hljs-comment">//设置对应磁盘块后的文件块头指针</span><br>                <span class="hljs-keyword">for</span> (j = <span class="hljs-number">0</span>; j &lt; FILE2BLK; j++) &#123;<br>                        <span class="hljs-keyword">if</span> (dirblk[j].f_name[<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;\0&#x27;</span>) &#123; <span class="hljs-comment">//文件名被重置了，说明原文件被删除</span><br>                                <span class="hljs-keyword">return</span> &amp;dirblk[j]; <span class="hljs-comment">//返回该文件块的指针</span><br>                        &#125;<br>                &#125;<br>        &#125;<br>    <span class="hljs-comment">//找了一遍当前的磁盘块中的文件块都无空闲，则直接新增一个磁盘块，来创立新文件块</span><br>        bno = make_link_block(dirf, nblk); <br>        <span class="hljs-keyword">return</span> (<span class="hljs-keyword">struct</span> File *)disk[bno].data; <span class="hljs-comment">//由于是一个新磁盘块，直接返回第一个文件块即可</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>要注意过程是找到磁盘块，再在磁盘块中找文件控制块</p>
+</li>
+<li><p>本质上是同地址，不同类型间的转换，再通过指针偏移来获取对应块的数据</p>
+</li>
+<li><p>创建新磁盘块的过程中调用了<code>make_link_block next_block save_block_link</code>三个函数</p>
+<ul>
+<li><p>&#96;&#96;&#96;c<br>int make_link_block(struct File *dirf, int nblk) {<br>int bno &#x3D; next_block(BLOCK_FILE); &#x2F;&#x2F;获取一个新类型为文件的磁盘块<br>save_block_link(dirf, nblk, bno); &#x2F;&#x2F;为这个磁盘块设立链接<br>dirf-&gt;f_size +&#x3D; BY2BLK; &#x2F;&#x2F;修改原目录的长度<br>return bno; &#x2F;&#x2F;最终返回块号<br>}</p>
+<p>int next_block(int type) { &#x2F;&#x2F;设置磁盘块的类型并返回块号<br>disk[nextbno].type &#x3D; type;<br>return nextbno++;<br>}</p>
+<p>void save_block_link(struct File *f, int nblk, int bno)<br>{<br>assert(nblk &lt; NINDIRECT); &#x2F;&#x2F;判断要存为直接指针还是间接指针<br><br>if(nblk &lt; NDIRECT) {<br>    f-&gt;f_direct[nblk] &#x3D; bno; &#x2F;&#x2F;记录块号<br>}<br>else {<br>    if(f-&gt;f_indirect &#x3D;&#x3D; 0) { &#x2F;&#x2F;如果未创建过 存简介指针 的磁盘块，则建一个<br>        &#x2F;&#x2F; create new indirect block.<br>        f-&gt;f_indirect &#x3D; next_block(BLOCK_INDEX);<br>    }<br>    ((uint32_t *)(disk[f-&gt;f_indirect].data))[nblk] &#x3D; bno; &#x2F;&#x2F;记录块号<br>}<br>}</p>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs clean"><br>### 磁盘块缓存<br><br>`DISKMAP~DISKMAP + DISKMAP`，即`<span class="hljs-number">0x10000000</span><span class="hljs-number">-0x4fffffff</span>`，在虚存空间中当作**磁盘的缓冲区**，我们在其中申请页面，用于给磁盘读入时进行映射。<br><br>- 要搞清一个概念：磁盘可以有很多个，但统一磁块号对应的缓冲区块只有一个（？）<br><br>#### Exe5<span class="hljs-number">.5</span> diskaddr函数<br><br>该函数用来通过磁盘块号获取对应的缓冲区地址<br><br>```c<br>u_int<br>diskaddr(u_int blockno)<br>&#123;<br>        <span class="hljs-keyword">if</span> (super) &#123;<br>                <span class="hljs-keyword">if</span> (blockno &gt;= super-&gt;s_nblocks) &#123; <span class="hljs-comment">//若磁盘块超过的块上限，则报错</span><br>                        user_panic(<span class="hljs-string">&quot;blockno wrong : no super&quot;</span>);<br>                &#125;<br>        &#125;<br>        <span class="hljs-comment">//writef(&quot;%d : %x\n&quot;, blockno, (DISKMAP + (blockno * BY2BLK)));</span><br>        return (DISKMAP + (blockno * BY2BLK)); <span class="hljs-comment">//本质上就是num * size</span><br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h4 id="Exe5-6-map-block函数"><a href="#Exe5-6-map-block函数" class="headerlink" title="Exe5.6 map_block函数"></a>Exe5.6 map_block函数</h4><p>该函数用于给磁盘块映射内存，会首先检查是否已经映射，如若没有就申请新的一页来映射。</p>
+<ul>
+<li>检验映射用到了<code>block_is_mapped 和 va_is_mapped</code>，本质上就是获取到目标的虚拟地址va，然后通过页表和页表项来该地址判断有无被映射。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">map_block</span><span class="hljs-params">(u_int blockno)</span><br>&#123;<br>        u_int va;<br>        <span class="hljs-keyword">if</span> (block_is_mapped(blockno) != <span class="hljs-number">0</span>) &#123;<br>                <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>        &#125;<br>        <span class="hljs-keyword">return</span> syscall_mem_alloc(<span class="hljs-number">0</span>, diskaddr(blockno), PTE_V | PTE_R);<br>&#125;<br><br>u_int <span class="hljs-title function_">block_is_mapped</span><span class="hljs-params">(u_int blockno)</span><br>&#123;<br>        u_int va = diskaddr(blockno);<br>        <span class="hljs-keyword">if</span> (va_is_mapped(va)) &#123;<br>                <span class="hljs-keyword">return</span> va;<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br>u_int <span class="hljs-title function_">va_is_mapped</span><span class="hljs-params">(u_int va)</span><br>&#123;<br>        <span class="hljs-keyword">return</span> (((*vpd)[PDX(va)] &amp; (PTE_V)) &amp;&amp; ((*vpt)[VPN(va)] &amp; (PTE_V)));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="Exe5-7-dir-lookup函数"><a href="#Exe5-7-dir-lookup函数" class="headerlink" title="Exe5.7 dir_lookup函数"></a>Exe5.7 dir_lookup函数</h4><p>​	该函数用于查找目录下有无<code>name</code>对应的文件</p>
+<p>​	查询的过程类似<code>create_file</code></p>
+<ul>
+<li><code>file_get_block</code>通过目录f获取其中的第<code>filebno</code>个块并为其分配物理内存，然后用<code>read_block</code>读取磁盘块内容到内存上，最后用blk返回该块对应的虚拟地址</li>
+<li><code>file_map_block</code><ul>
+<li><code>file_block_walk</code>是查询块号的最终实现者</li>
+<li><code>alloc_block</code>调用<code>alloc_block_num</code>获取一个空闲的磁盘块号，然后用<code>map_block</code>给这个块建立内存映射</li>
+</ul>
+</li>
+<li><code>read_block</code>将blockno对应的块读到其内存映射的地址上，并用blk返回虚拟地址，isnew为1说明了是刚刚建立了映射。</li>
+</ul>
+<p><strong>注意两个号的区分：一个是目录下第几个文件的文件号filebno，一个是实际上磁盘中的块号diskbno！！</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">dir_lookup</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> File *dir, <span class="hljs-type">char</span> *name, <span class="hljs-keyword">struct</span> File **file)</span><br>&#123;<br>        <span class="hljs-type">int</span> r;<br>        u_int i, j, nblock;<br>        <span class="hljs-type">void</span> *blk;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">File</span> *<span class="hljs-title">f</span>;</span><br>        nblock = (dir-&gt;f_size, BY2BLK) /BY2BLK; <span class="hljs-comment">//通过f_size获取磁盘块的个数</span><br>        <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; nblock; i++) &#123; <br>                <span class="hljs-keyword">if</span> ((r = file_get_block(dir, i, &amp;blk)) &lt; <span class="hljs-number">0</span>) &#123; <br>                    <span class="hljs-comment">//获取对应块在虚存中的地址，用blk返回</span><br>                        <span class="hljs-keyword">return</span> r;<br>                &#125;<br>                <span class="hljs-keyword">for</span> (j = <span class="hljs-number">0</span>; j &lt; FILE2BLK; j++) &#123; <br>                        f = ((<span class="hljs-keyword">struct</span> File *)blk) + j; <br>                        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">strcmp</span>((<span class="hljs-type">char</span> *)f-&gt;f_name, name) == <span class="hljs-number">0</span>) &#123; <span class="hljs-comment">//若找到则直接返回对应文件块</span><br>                                f-&gt;f_dir = dir; <span class="hljs-comment">//因为这是直接通过目录查找，可能之前未对f_dir进行赋值</span><br>                                *file = f; <span class="hljs-comment">//返回文件块</span><br>                                <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>                        &#125;<br>                &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> -E_NOT_FOUND;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">file_get_block</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> File *f, u_int filebno, <span class="hljs-type">void</span> **blk)</span><br>&#123;<br>        <span class="hljs-type">int</span> r;<br>        u_int diskbno;<br>        u_int isnew;<br>        <span class="hljs-keyword">if</span> ((r = file_map_block(f, filebno, &amp;diskbno, <span class="hljs-number">1</span>)) &lt; <span class="hljs-number">0</span>) &#123;<br>                <span class="hljs-keyword">return</span> r; <span class="hljs-comment">//获取diskbno，即filebno对应的块号</span><br>        &#125;<br>        <span class="hljs-keyword">if</span> ((r = read_block(diskbno, blk, &amp;isnew)) &lt; <span class="hljs-number">0</span>) &#123;<br>                <span class="hljs-keyword">return</span> r; <span class="hljs-comment">//将这个块读进内存中</span><br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">file_map_block</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> File *f, u_int filebno, u_int *diskbno, u_int alloc)</span><br>&#123;<br>        <span class="hljs-type">int</span> r;<br>        u_int *ptr;<br>        <span class="hljs-keyword">if</span> ((r = file_block_walk(f, filebno, &amp;ptr, alloc)) &lt; <span class="hljs-number">0</span>) &#123;<br>                <span class="hljs-keyword">return</span> r; <span class="hljs-comment">//根据filebno获取对应块的地址</span><br>        &#125;<br>        <span class="hljs-keyword">if</span> (*ptr == <span class="hljs-number">0</span>) &#123; <span class="hljs-comment">//若返回的ptr是空指针</span><br>                <span class="hljs-keyword">if</span> (alloc == <span class="hljs-number">0</span>) &#123;<br>                        <span class="hljs-keyword">return</span> -E_NOT_FOUND;<br>                &#125;<br><br>                <span class="hljs-keyword">if</span> ((r = alloc_block()) &lt; <span class="hljs-number">0</span>) &#123; <span class="hljs-comment">//申请一个新的磁盘块</span><br>                        <span class="hljs-keyword">return</span> r;<br>                &#125;<br>                *ptr = r;<br>        &#125;<br>        *diskbno = *ptr;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">int</span><br><span class="hljs-title function_">read_block</span><span class="hljs-params">(u_int blockno, <span class="hljs-type">void</span> **blk, u_int *isnew)</span><br>&#123;<br>        u_int va;<br>        <span class="hljs-keyword">if</span> (super &amp;&amp; blockno &gt;= super-&gt;s_nblocks) &#123; <span class="hljs-comment">//异常：块号越界</span><br>                user_panic(<span class="hljs-string">&quot;reading non-existent block %08x\n&quot;</span>, blockno);<br>        &#125;<br>        <span class="hljs-keyword">if</span> (bitmap &amp;&amp; block_is_free(blockno)) &#123; <span class="hljs-comment">//异常：查询块未被映射</span><br>                user_panic(<span class="hljs-string">&quot;reading free block %08x\n&quot;</span>, blockno);<br>        &#125;<br>        va = diskaddr(blockno); <span class="hljs-comment">//获取对应的虚拟地址</span><br>        <span class="hljs-keyword">if</span> (block_is_mapped(blockno)) &#123; <span class="hljs-comment">// the block is in memory</span><br>                <span class="hljs-keyword">if</span> (isnew) &#123;<br>                        *isnew = <span class="hljs-number">0</span>;<br>                &#125;<br>        &#125; <span class="hljs-keyword">else</span> &#123;                        <span class="hljs-comment">// the block is not in memory</span><br>                <span class="hljs-keyword">if</span> (isnew) &#123;<br>                        *isnew = <span class="hljs-number">1</span>;<br>                &#125;<br>                syscall_mem_alloc(<span class="hljs-number">0</span>, va, PTE_V | PTE_R); <span class="hljs-comment">//申请物理页面</span><br>                ide_read(<span class="hljs-number">0</span>, blockno * SECT2BLK, (<span class="hljs-type">void</span> *)va, SECT2BLK); <span class="hljs-comment">//从磁盘读入</span><br>        &#125;<br>        <span class="hljs-keyword">if</span> (blk) &#123;<br>                *blk = (<span class="hljs-type">void</span> *)va; <span class="hljs-comment">//返回对应虚拟地址</span><br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">file_block_walk</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> File *f, u_int filebno, u_int **ppdiskbno, u_int alloc)</span><br>&#123;<br>        <span class="hljs-type">int</span> r;<br>        u_int *ptr;<br>        <span class="hljs-type">void</span> *blk;<br>        <span class="hljs-keyword">if</span> (filebno &lt; NDIRECT) &#123; <span class="hljs-comment">//通过直接指针直接获取磁盘块号</span><br>                ptr = &amp;f-&gt;f_direct[filebno];<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (filebno &lt; NINDIRECT) &#123;<br>                <span class="hljs-keyword">if</span> (f-&gt;f_indirect == <span class="hljs-number">0</span>) &#123; <span class="hljs-comment">//还未创建“间接指针”磁盘块</span><br>                        <span class="hljs-keyword">if</span> (alloc == <span class="hljs-number">0</span>) &#123;<br>                                <span class="hljs-keyword">return</span> -E_NOT_FOUND;<br>                        &#125;<br><br>                        <span class="hljs-keyword">if</span> ((r = alloc_block()) &lt; <span class="hljs-number">0</span>) &#123; <span class="hljs-comment">//创建一个新的磁盘块</span><br>                                <span class="hljs-keyword">return</span> r;<br>                        &#125;<br>                        f-&gt;f_indirect = r; <span class="hljs-comment">//记录下块号</span><br>                &#125;<br>                <span class="hljs-keyword">if</span> ((r = read_block(f-&gt;f_indirect, &amp;blk, <span class="hljs-number">0</span>)) &lt; <span class="hljs-number">0</span>) &#123;<br>                        <span class="hljs-keyword">return</span> r; <span class="hljs-comment">//将磁盘内容读入内存中，blk返回的是内存中磁盘块对应的虚拟地址</span><br>                &#125;<br>                ptr = (u_int *)blk + filebno; <br>            <span class="hljs-comment">//这里返回的是 存简介指针磁盘块 的 第filebno个间接指针 的地址，目的是返回磁盘块号</span><br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-keyword">return</span> -E_INVAL;<br>        &#125;<br>        *ppdiskbno = ptr;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">alloc_block</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>        <span class="hljs-type">int</span> r, bno;<br>        <span class="hljs-keyword">if</span> ((r = alloc_block_num()) &lt; <span class="hljs-number">0</span>) &#123; <span class="hljs-comment">// failed.</span><br>                <span class="hljs-keyword">return</span> r;<br>        &#125;<br>        bno = r;<br>        <span class="hljs-keyword">if</span> ((r = map_block(bno)) &lt; <span class="hljs-number">0</span>) &#123;<br>                free_block(bno);<br>                <span class="hljs-keyword">return</span> r;<br>        &#125;<br>        <span class="hljs-keyword">return</span> bno;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="用户接口"><a href="#用户接口" class="headerlink" title="用户接口"></a>用户接口</h2><p>操作系统的设计是将磁盘文件系统当作了一个serv进程来设计，而不是系统内核本身对所有进程开放，两者有着本质区别。既然作为一个进程，就需要实现用户态下的用户接口，用于文件系统的相关操作。</p>
+<blockquote>
+<p>文件系统属于用户态进程，以服务的形式供其他进程调用。这个过程中，不仅涉及了不同进程之间通信的问题，也涉及了文件系统如何隔离底层的文件系统实现，抽象地表示一个文件的问题。我们引入文件描述符（file descriptor）作为用户程序管理、操作文件资源的方式。</p>
+</blockquote>
+<h3 id="文件描述符"><a href="#文件描述符" class="headerlink" title="文件描述符"></a>文件描述符</h3><h4 id="信息存储"><a href="#信息存储" class="headerlink" title="信息存储"></a>信息存储</h4><ul>
+<li>Dev 诸多文教操作外设的方法集合</li>
+<li>Fd 文件描述符，用于</li>
+<li>Stat ？</li>
+<li>Filefd 文件描述符与文件控制块的整合体</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Dev</span> &#123;</span><br>        <span class="hljs-type">int</span> dev_id;<br>        <span class="hljs-type">char</span> *dev_name;<br>        <span class="hljs-type">int</span> (*dev_read)(<span class="hljs-keyword">struct</span> Fd *, <span class="hljs-type">void</span> *, u_int, u_int);<br>        <span class="hljs-type">int</span> (*dev_write)(<span class="hljs-keyword">struct</span> Fd *, <span class="hljs-type">const</span> <span class="hljs-type">void</span> *, u_int, u_int);<br>        <span class="hljs-type">int</span> (*dev_close)(<span class="hljs-keyword">struct</span> Fd *);<br>        <span class="hljs-type">int</span> (*dev_stat)(<span class="hljs-keyword">struct</span> Fd *, <span class="hljs-keyword">struct</span> Stat *);<br>        <span class="hljs-type">int</span> (*dev_seek)(<span class="hljs-keyword">struct</span> Fd *, u_int);<br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Fd</span> &#123;</span><br>        u_int fd_dev_id; <span class="hljs-comment">//对应外设的id</span><br>        u_int fd_offset; <span class="hljs-comment">//读写位置的偏移量</span><br>        u_int fd_omode; <span class="hljs-comment">//打开模式</span><br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Stat</span> &#123;</span><br>        <span class="hljs-type">char</span> st_name[MAXNAMELEN];<br>        u_int st_size;<br>        u_int st_isdir;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Dev</span> *<span class="hljs-title">st_dev</span>;</span><br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Filefd</span> &#123;</span><br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Fd</span> <span class="hljs-title">f_fd</span>;</span><br>        u_int f_fileid;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">File</span> <span class="hljs-title">f_file</span>;</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="Exe5-8-open函数"><a href="#Exe5-8-open函数" class="headerlink" title="Exe5.8 open函数"></a>Exe5.8 open函数</h4><p>​	该函数是用户态打开文件的接口，通过传入的文件路径和打开模式，最终返回文件描述符的编号</p>
+<ul>
+<li>新建一个文件描述符</li>
+<li>通过fsipc_open使得fd中载入了对应的文件信息</li>
+<li>通过fsipc_map将该文件的所有块载入内存之中</li>
+</ul>
+<blockquote>
+<p>当用户进程向文件系统发送打开文件的请求时，文件系统进程会将这些基本信息记录在内存中，然后由操作系统将用户进程请求的地址映射到同一个物理页上，因此一个文件描述符至少需要独占一页的空间。当用户进程获取了文件大小等基本信息后，再次向文件系统发送请求将文件内容映射到指定内存空间中。</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">open</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *path, <span class="hljs-type">int</span> mode)</span><br>&#123;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Fd</span> *<span class="hljs-title">fd</span>;</span><br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Filefd</span> *<span class="hljs-title">ffd</span>;</span><br>        u_int size, fileid;<br>        <span class="hljs-type">int</span> r;<br>        u_int va;<br>        u_int i;<br>        <span class="hljs-keyword">if</span> ((r = fd_alloc(&amp;fd)) &lt; <span class="hljs-number">0</span>) &#123; <span class="hljs-comment">//创建一个新的文件描述符fd</span><br>                <span class="hljs-keyword">return</span> r;<br>        &#125;<br>         <span class="hljs-keyword">if</span> ((r = fsipc_open(path, mode, fd)) &lt; <span class="hljs-number">0</span>) &#123; <br>                <span class="hljs-keyword">return</span> r; <span class="hljs-comment">//通过进程通信</span><br>        &#125;<br>        ffd = (<span class="hljs-keyword">struct</span> Filefd *)fd; <span class="hljs-comment">//将fd直接转换为Fildfd，访问f_fileid和f_file字段</span><br>        va = fd2data(fd);<br>        fileid = ffd-&gt;f_fileid;<br>        size = ffd-&gt;f_file.f_size;<br>        <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; size; i += BY2BLK) &#123; <span class="hljs-comment">//为该文件的每个块，映射入内存</span><br>                <span class="hljs-keyword">if</span> ((r = fsipc_map(fileid, i, va + i)) &lt; <span class="hljs-number">0</span>) &#123;<br>                        <span class="hljs-keyword">return</span> r;<br>                &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> fd2num(fd); <span class="hljs-comment">//最后返回这个fd的序号</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="Exe5-9-read函数"><a href="#Exe5-9-read函数" class="headerlink" title="Exe5.9 read函数"></a>Exe5.9 read函数</h4><blockquote>
+<p>当我们要读取一个大文件中间的一小部分内容时，从头读到尾是极为浪费的，因此我们需要一个指针帮助我们在文件中定位。在读写期间，每次读写也会更新该指针的值。 <strong>见fd_offset</strong></p>
+</blockquote>
+<ul>
+<li>获取对应的fd块以及设备块</li>
+<li>判断权限</li>
+<li>通过设备块中的read操作完成读操作</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">read</span><span class="hljs-params">(<span class="hljs-type">int</span> fdnum, <span class="hljs-type">void</span> *buf, u_int n)</span><br>&#123;<br>        <span class="hljs-type">int</span> r;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Dev</span> *<span class="hljs-title">dev</span>;</span><br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Fd</span> *<span class="hljs-title">fd</span>;</span><br>        <span class="hljs-keyword">if</span> ((r = fd_lookup(fdnum, &amp;fd)) &lt; <span class="hljs-number">0</span>) &#123; <span class="hljs-comment">//获取fd</span><br>                <span class="hljs-keyword">return</span> r;<br>        &#125;<br>        <span class="hljs-keyword">if</span> ((r = dev_lookup(fd-&gt;fd_dev_id, &amp;dev)) &lt; <span class="hljs-number">0</span>) &#123;<br>                <span class="hljs-keyword">return</span> r; <span class="hljs-comment">//获取该fd对应的设备操作体</span><br>        &#125;<br>        <span class="hljs-keyword">if</span> ((fd-&gt;fd_omode &amp; O_ACCMODE) == O_WRONLY) &#123; <span class="hljs-comment">//检验权限</span><br>                writef(<span class="hljs-string">&quot;[%08x] read %d -- bad mode\n&quot;</span>, env-&gt;env_id, fdnum);<br>                <span class="hljs-keyword">return</span> -E_INVAL;        &#125;<br>        <span class="hljs-keyword">if</span> (debug) writef(<span class="hljs-string">&quot;read %d %p %d via dev %s\n&quot;</span>, fdnum, buf, n, dev-&gt;dev_name);<br>    <span class="hljs-comment">//这个是debug模式下的输出，不用管</span><br>        r = (*dev-&gt;dev_read)(fd, buf, n, fd-&gt;fd_offset); <br>    <span class="hljs-comment">//调用了设备操作中的read操作，将内容存到缓冲区buf中</span><br>        <span class="hljs-keyword">if</span> (r &gt; <span class="hljs-number">0</span>) &#123;<br>                fd-&gt;fd_offset += r; <span class="hljs-comment">//实现前文所述的指针，提升读写效率</span><br>        &#125;<br>        ((<span class="hljs-type">char</span> *)buf)[r] = <span class="hljs-string">&#x27;\0&#x27;</span>;<br>        <span class="hljs-keyword">return</span> r;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>注：</p>
+<ul>
+<li>file_read是read底层的一个函数，在read中通过<code>(*dev-&gt;dev_read)</code>调用，实现了读取文件中一定长度内容的功能。</li>
+<li>同理open和file_open的关系也是如此，open中调用了fsipc_open最终在底层的serve_open中调用了file_open，总体上是通过path得到了该文件的文件控制块fd</li>
+</ul>
+<h3 id="文件服务系统"><a href="#文件服务系统" class="headerlink" title="文件服务系统"></a>文件服务系统</h3><ul>
+<li>serv进程类似于系统调用，fs&#x2F;serv.c中的serve函数，通过<code>ipc_recv</code>函数的返回值，即对应的操作号，调用相应的serve函数完成文件系统的相应操作。</li>
+<li>在fsipc()函数中将第二个进程默认为serve进程，创建时也要注意将其放在第二个</li>
+<li>！！要始终明白文件系统的操作是在内存上的，磁盘只实现了存储和磁盘块的读与写。<ul>
+<li>在需要打开文件时，前文提到的块缓存中通过fsipc_open和fsipc_map（最终是file_get_block）将磁盘内容存入了内存中</li>
+<li>调用unmap_block会检验dirty标志，如若被修改过了，会将内容重新写入磁盘中</li>
+</ul>
+</li>
+</ul>
+<h4 id="Exe5-10-删除操作"><a href="#Exe5-10-删除操作" class="headerlink" title="Exe5.10 删除操作"></a>Exe5.10 删除操作</h4><p>需要完成三个函数：user&#x2F;fsipc.c的fsipc_remove user.file.c的remove fs&#x2F;serv.c的serve_remove</p>
+<p>三者的关系是 <strong>用户接口remove – 底层申请操作fsipc_remove – 文件系统响应服务serve_remove</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">remove</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *path)</span><br>&#123;<br>        <span class="hljs-keyword">return</span> fsipc_remove(path); <span class="hljs-comment">//用户态的remove接口</span><br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">fsipc_remove</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *path)</span><br>&#123;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Fsreq_remove</span>* <span class="hljs-title">f</span>;</span><br>        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">strlen</span>(path) &gt;= MAXPATHLEN) &#123; <span class="hljs-comment">//检验path是否合法</span><br>                <span class="hljs-keyword">return</span> -E_BAD_PATH;<br>        &#125;<br>        f = (<span class="hljs-keyword">struct</span> Fsreq_remove *)fsipcbuf; <span class="hljs-comment">//创建申请操作的req</span><br>        <span class="hljs-built_in">strcpy</span>((<span class="hljs-type">char</span> *)f-&gt;req_path, path); <span class="hljs-comment">//传入需要删除文件的地址</span><br>        <span class="hljs-keyword">return</span> fsipc(FSREQ_REMOVE, f, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>);<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">serve_remove</span><span class="hljs-params">(u_int envid, <span class="hljs-keyword">struct</span> Fsreq_remove *rq)</span><br>&#123;<br>        <span class="hljs-type">int</span> r; <br>        u_char path[MAXPATHLEN];<br>        <span class="hljs-built_in">strcpy</span>(path, (<span class="hljs-type">char</span> *)rq-&gt;req_path); <br>        path[MAXPATHLEN - <span class="hljs-number">1</span>] = <span class="hljs-string">&#x27;\0&#x27;</span>; <span class="hljs-comment">//保证路径有效</span><br>        r = file_remove(path); <span class="hljs-comment">//删除文件</span><br>        ipc_send(envid, r, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>); <span class="hljs-comment">//完成响应后将反馈发送出去</span><br>&#125; <br><br><span class="hljs-type">int</span> <span class="hljs-title function_">file_remove</span><span class="hljs-params">(<span class="hljs-type">char</span> *path)</span><br>&#123;<br>        <span class="hljs-type">int</span> r;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">File</span> *<span class="hljs-title">f</span>;</span><br>        <span class="hljs-keyword">if</span> ((r = walk_path(path, <span class="hljs-number">0</span>, &amp;f, <span class="hljs-number">0</span>)) &lt; <span class="hljs-number">0</span>) &#123;<br>                <span class="hljs-keyword">return</span> r; <span class="hljs-comment">//在磁盘中找到对应的文件（控制块）</span><br>        &#125;<br>        file_truncate(f, <span class="hljs-number">0</span>); <span class="hljs-comment">//删除文件的相关块的（不太清楚）</span><br>        f-&gt;f_name[<span class="hljs-number">0</span>] = <span class="hljs-string">&#x27;\0&#x27;</span>; <span class="hljs-comment">//将名字重置以表示该文件被删除</span><br>        file_flush(f); <span class="hljs-comment">//将相应块标为dirty，说明需要写回更新</span><br>        <span class="hljs-keyword">if</span> (f-&gt;f_dir) &#123;<br>                file_flush(f-&gt;f_dir); <span class="hljs-comment">//目录所在块同样需要更新</span><br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E7%AC%94%E8%AE%B0/" class="category-chain-item">操作系统实验笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>OSlab5笔记</div>
+      <div>https://guangstrip.github.io/20220608/OSlab5笔记/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>ZhaoYanguang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年6月8日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/">
+              <span class="hint--top hint--rounded" aria-label="SA - 相同方式共享">
+                <i class="iconfont icon-sa"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/20220613/OSlab5%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" title="OSlab5实验报告">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">OSlab5实验报告</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/20220606/OO%E7%AC%AC%E4%B8%89%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/" title="OO第三单元总结">
+                        <span class="hidden-mobile">OO第三单元总结</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
