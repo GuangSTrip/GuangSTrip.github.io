@@ -19,18 +19,18 @@
     <meta name="description" content="OO第四单元总结本单元架构设计任务概要​	本单元作业要求补全一个UML解析器，实现对UML图相关信息的整合与查询，以及部分规则的规范性验证。具体为第十三次作业实现UML类图相关指令，第十四次作业实现UML顺序图和状态图的相关指令，第十五次实现部分规则的规范性验证。 ​	值得注意的是，本单元的官方包已经为你完成了对于输入数据的预处理，将其整理为UmlElement数组传递给你，需要完成的任务可分为以">
 <meta property="og:type" content="article">
 <meta property="og:title" content="OO第四单元总结">
-<meta property="og:url" content="http://example.com/2022/07/06/OO%E7%AC%AC%E5%9B%9B%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:url" content="http://example.com/2022/06/27/OO%E7%AC%AC%E5%9B%9B%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/index.html">
 <meta property="og:site_name" content="光">
 <meta property="og:description" content="OO第四单元总结本单元架构设计任务概要​	本单元作业要求补全一个UML解析器，实现对UML图相关信息的整合与查询，以及部分规则的规范性验证。具体为第十三次作业实现UML类图相关指令，第十四次作业实现UML顺序图和状态图的相关指令，第十五次实现部分规则的规范性验证。 ​	值得注意的是，本单元的官方包已经为你完成了对于输入数据的预处理，将其整理为UmlElement数组传递给你，需要完成的任务可分为以">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2022/07/06/OO%E7%AC%AC%E5%9B%9B%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/image-20220626193331040.png">
-<meta property="og:image" content="http://example.com/2022/07/06/OO%E7%AC%AC%E5%9B%9B%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/image-20220626222507396.png">
-<meta property="article:published_time" content="2022-07-06T01:21:04.000Z">
-<meta property="article:modified_time" content="2022-07-06T01:21:42.730Z">
+<meta property="og:image" content="http://example.com/2022/06/27/OO%E7%AC%AC%E5%9B%9B%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/image-20220626193331040.png">
+<meta property="og:image" content="http://example.com/2022/06/27/OO%E7%AC%AC%E5%9B%9B%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/image-20220626222507396.png">
+<meta property="article:published_time" content="2022-06-27T01:21:04.000Z">
+<meta property="article:modified_time" content="2022-07-06T01:22:24.863Z">
 <meta property="article:author" content="ZhaoYanguang">
 <meta property="article:tag" content="面向对象">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2022/07/06/OO%E7%AC%AC%E5%9B%9B%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/image-20220626193331040.png">
+<meta name="twitter:image" content="http://example.com/2022/06/27/OO%E7%AC%AC%E5%9B%9B%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/image-20220626193331040.png">
   
   
   
@@ -210,8 +210,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2022-07-06 09:21" pubdate>
-          2022年7月6日 上午
+        <time datetime="2022-06-27 09:21" pubdate>
+          2022年6月27日 上午
         </time>
       </span>
     
@@ -285,7 +285,7 @@
 </ul>
 <h3 id="输入架构"><a href="#输入架构" class="headerlink" title="输入架构"></a>输入架构</h3><p>​	Uml图的元素间有着一定的依赖、上下级关系，在输入的过程中以合适的顺序分批对不同种类的元素进行存储，可以保证关联的对象已经存在，从而正确的构建存储模型，避免出现需要的对象还未载入的情况。</p>
 <p>​	输入顺序的安排可通过Uml元素间的关系来排布，主要有父子关系，以及source、target等索引关系，笔者的处理流程由下图展示，输入架构一共分五轮，顺序为从左往右，保证了输入时的依赖与索引关系。</p>
-<p><img src="/2022/07/06/OO%E7%AC%AC%E5%9B%9B%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/image-20220626193331040.png" srcset="/img/loading.gif" lazyload alt="image-20220626193331040"></p>
+<p><img src="/2022/06/27/OO%E7%AC%AC%E5%9B%9B%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/image-20220626193331040.png" srcset="/img/loading.gif" lazyload alt="image-20220626193331040"></p>
 <h3 id="存储架构"><a href="#存储架构" class="headerlink" title="存储架构"></a>存储架构</h3><p>​	本单元的作业核心就在于对于数据的存储，笔者构建<code>MyUml***</code>类，将原有的Uml变量与自建的容器相结合结合，并在其中添加为实现指令要求所需要的方法，并在“作业顶层”<code>MyImplementation</code>中用容器存储这些类，用于指令函数中进行查询与调用相关方法。</p>
 <p>​	其中，笔者选用的容器为HashMap和HashSet。因为题目限定了UmlElement的id唯一，因此以各自id为Key，对象为value十分好用；而HashSet自带去重功能，某些指令需要完成字符串去重，使用HashSet就直接完成了这一要求。</p>
 <h4 id="记忆化"><a href="#记忆化" class="headerlink" title="记忆化"></a>记忆化</h4><p>​	值得一提的是，本单元的题目具有一次构造，多次查询的特点，因此笔者采用了记忆化的特点以提升程序性能，具体操作时给待查询的量设置一个标志位，判断其是否以为计算得到，若未则进一步进行计算，否则直接返回已存储下的值。</p>
@@ -293,7 +293,7 @@
 <h4 id="部分细节"><a href="#部分细节" class="headerlink" title="部分细节"></a>部分细节</h4><h5 id="NotFound-amp-Duplicated-异常"><a href="#NotFound-amp-Duplicated-异常" class="headerlink" title="NotFound &amp; Duplicated 异常"></a>NotFound &amp; Duplicated 异常</h5><p>​	这两个异常在大部分指令中都需要考虑，笔者实现方式是遍历一遍对应容器，用count记录满足要求的个数，如若最终count为0则是NotFoundException，count大于1就是DuplicatedException。我们可以将这一过程封装成专门的方法，可以有效降低程序的复杂度。</p>
 <h5 id="Rule003-循环继承检查"><a href="#Rule003-循环继承检查" class="headerlink" title="Rule003 循环继承检查"></a>Rule003 循环继承检查</h5><p>​	该规则的检查可以使用dfs或者类Floyd最短路的算法，笔者采用的是后者，即将最短路中的路径长度改为两者是否连同，执行一遍Floyd算法后，若某类或接口自己和自己联通则说明其发生了循环继承。</p>
 <p>​	注意使用一般的拓扑序列无法实现该检查，因为数据中可能出现自己继承自己的情况，即出现自环。如下述情况，可能会导致错把也当作循环继承的一份子。</p>
-<p><img src="/2022/07/06/OO%E7%AC%AC%E5%9B%9B%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/image-20220626222507396.png" srcset="/img/loading.gif" lazyload alt="image-20220626222507396"></p>
+<p><img src="/2022/06/27/OO%E7%AC%AC%E5%9B%9B%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/image-20220626222507396.png" srcset="/img/loading.gif" lazyload alt="image-20220626222507396"></p>
 <h4 id="单元总结"><a href="#单元总结" class="headerlink" title="单元总结"></a>单元总结</h4><p>​	通过本单元的学习，我对UML图有了十分深入的理解，同时在容器选取、数据架构、数据交互等方面都得到了很好的锻炼，同时程序设计更趋于模块化，整体架构更加清晰明确，写代码能力进一步提升，收获巨大。</p>
 <h2 id="架构设计思维及OO方法理解的演进"><a href="#架构设计思维及OO方法理解的演进" class="headerlink" title="架构设计思维及OO方法理解的演进"></a>架构设计思维及OO方法理解的演进</h2><h3 id="第一单元——表达式解析"><a href="#第一单元——表达式解析" class="headerlink" title="第一单元——表达式解析"></a>第一单元——表达式解析</h3><p>​	刚接触面向对象，我凭着大一经验，在Main函数中直接实现了第一次作业，完成了一个面向过程的程序，觉得挺简单的自信满满。但是第二次作业出现的三角函数立马就打脸了，多项东西的嵌套使得面向过程的实现异常艰难，我开始真正接触面向对象，并且最终构造出了<code>多项式-项-基元-多项式</code>的循环嵌套模型，初步理解了面向对象的巧妙所在，同时也体会到了其中的封装性，算是入门了面向对象。</p>
 <h3 id="第二单元——电梯调度系统"><a href="#第二单元——电梯调度系统" class="headerlink" title="第二单元——电梯调度系统"></a>第二单元——电梯调度系统</h3><p>​	第二单元是第一次接触到多线程编程，其中最关键的是线程间的交互与安全问题。经过三次作业迭代，在学习了诸多面向对象程序架构后，我采用了<strong>生产者-消费者模式</strong>，设计了**<code>InputThread输入线程-Schedule调度线程-Elevator处理线程</code>**的电梯调度系统，分别实现了输入处理、任务发布和任务实现的三个部分，并在实现过程中是用了synchronized和读写锁&#96;的方式来保证线程安全。</p>
@@ -371,7 +371,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>OO第四单元总结</div>
-      <div>http://example.com/2022/07/06/OO第四单元总结/</div>
+      <div>http://example.com/2022/06/27/OO第四单元总结/</div>
     </div>
     <div class="license-meta">
       
@@ -383,7 +383,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2022年7月6日</div>
+          <div>2022年6月27日</div>
         </div>
       
       
