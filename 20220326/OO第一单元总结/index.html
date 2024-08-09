@@ -1,0 +1,749 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/null">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="ZhaoYanguang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="OO第一单元作业总结一、作业梗概​	OO第一单元作业的核心是表达式的处理及化简，三次作业不断迭代增添功能：  实现简单的(x的幂函数以及常数)的多项式括号展开 增添了对三角函数、sum求和函数以及自定义函数的需求，但有三角函数中只有常数因子或幂函数的限定 取消了第二次作业中的限定，要求可实现多项式与因子的互相嵌套  二、程序思路及结构分析核心思路 递归下降：得益于第一次上机和训练助教给出的代码，让">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OO第一单元总结">
+<meta property="og:url" content="https://guangstrip.github.io/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="光">
+<meta property="og:description" content="OO第一单元作业总结一、作业梗概​	OO第一单元作业的核心是表达式的处理及化简，三次作业不断迭代增添功能：  实现简单的(x的幂函数以及常数)的多项式括号展开 增添了对三角函数、sum求和函数以及自定义函数的需求，但有三角函数中只有常数因子或幂函数的限定 取消了第二次作业中的限定，要求可实现多项式与因子的互相嵌套  二、程序思路及结构分析核心思路 递归下降：得益于第一次上机和训练助教给出的代码，让">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guangstrip.github.io/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/1.jpg">
+<meta property="og:image" content="https://guangstrip.github.io/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/1class.png">
+<meta property="og:image" content="https://guangstrip.github.io/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/1method.png">
+<meta property="og:image" content="https://guangstrip.github.io/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/2.jpg">
+<meta property="og:image" content="https://guangstrip.github.io/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/2class.png">
+<meta property="og:image" content="https://guangstrip.github.io/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/2method.png">
+<meta property="og:image" content="https://guangstrip.github.io/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/3.jpg">
+<meta property="og:image" content="https://guangstrip.github.io/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/3class.png">
+<meta property="og:image" content="https://guangstrip.github.io/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/3method-1.png">
+<meta property="og:image" content="https://guangstrip.github.io/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/3method-2.png">
+<meta property="og:image" content="https://guangstrip.github.io/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/3method-3.png">
+<meta property="article:published_time" content="2022-03-26T10:32:21.000Z">
+<meta property="article:modified_time" content="2022-07-06T10:40:20.822Z">
+<meta property="article:author" content="ZhaoYanguang">
+<meta property="article:tag" content="面向对象">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://guangstrip.github.io/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/1.jpg">
+  
+  
+  
+  <title>OO第一单元总结 - 光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"guangstrip.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="OO第一单元总结"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-03-26 18:32" pubdate>
+          2022年3月26日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          31 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">OO第一单元总结</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="OO第一单元作业总结"><a href="#OO第一单元作业总结" class="headerlink" title="OO第一单元作业总结"></a>OO第一单元作业总结</h2><h4 id="一、作业梗概"><a href="#一、作业梗概" class="headerlink" title="一、作业梗概"></a>一、作业梗概</h4><p>​	OO第一单元作业的核心是表达式的处理及化简，三次作业不断迭代增添功能：</p>
+<ul>
+<li>实现简单的(x的幂函数以及常数)的多项式括号展开</li>
+<li>增添了对三角函数、sum求和函数以及自定义函数的需求，但有三角函数中只有常数因子或幂函数的限定</li>
+<li>取消了第二次作业中的限定，要求可实现多项式与因子的互相嵌套</li>
+</ul>
+<h4 id="二、程序思路及结构分析"><a href="#二、程序思路及结构分析" class="headerlink" title="二、程序思路及结构分析"></a>二、程序思路及结构分析</h4><h5 id="核心思路"><a href="#核心思路" class="headerlink" title="核心思路"></a>核心思路</h5><ul>
+<li><strong>递归下降</strong>：得益于第一次上机和训练助教给出的代码，让我学习到了递归下降这一关键理念，通过对多项式（Expr）、项（Term）、因子（Factor）的分层处理，实现了作业的主要任务“去括号”，这一点体现在代码中的<strong>Parse类</strong>。</li>
+<li><strong>表达式实时处理</strong>：此思路亦来自于实验代码，通过建立表达式处理类（<strong>Analysis&#x2F;Lexer</strong>），模拟<strong>读一项理解一项</strong>的过程，对每一次读取数或者符号进行实时反馈，其中包括**getOperation()、getSymbol()、getFactor()、getTri()**等方法对可能读入的各种元素进行读取。</li>
+<li><strong>类型统一化</strong>：尽管递归下降的思路将处理分成了三个层次，但为了便于处理，笔者将三个层次返回值都设定为<strong>多项式</strong>，这样的好处是在进行加减乘以及指数运算时，可以保证两运算数间的类型保持一致，<strong>避免不同层级之间相互运算而导致程序混乱</strong>。笔者在本文中将这个体现基础的多项式的类称为<strong>基元</strong>。</li>
+</ul>
+<h5 id="第一次作业"><a href="#第一次作业" class="headerlink" title="第一次作业"></a>第一次作业</h5><ul>
+<li><p>分析：由于第一次作业明确声明指数始终不会超过8，因此笔者在设置存储<strong>基元</strong>的<strong>Factor类</strong>时，定义了一个长度为0-8的数组，即表示一个<strong>指数最高为8的x的多项式</strong>。</p>
+</li>
+<li><p>UML类图：</p>
+<p><img src="/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/1.jpg" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p>度量分析</p>
+<ul>
+<li>类</li>
+</ul>
+<p><img src="/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/1class.png" srcset="/img/loading.gif" lazyload alt="1class"></p>
+<ul>
+<li>方法</li>
+</ul>
+<p><img src="/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/1method.png" srcset="/img/loading.gif" lazyload alt="1method"></p>
+<ul>
+<li><p>程序优缺点分析及总结</p>
+<p>第一次作业整体来说较为简单，个人感觉是为了让同学们初步开始接触面向对象的第一次练手。由于可能出现的表达形式比较简单，因此我在学习了实验中助教给的示例代码后，仅用四个类就完成了第一次作业的编写。</p>
+<ul>
+<li>从程序来看，第一次作业优在简单明了，结构明晰，可读性高易理解，但劣在可拓展性较弱，例如在存储x幂函数的部分，直接简单粗暴地用了静态数组来存储，不利于之后指数无上限等的拓展。</li>
+<li>从结果来看，第一次作业由于比较简单，最后的正确性和性能的实现结果都令人满意，未曾有发现bug。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="第二次作业"><a href="#第二次作业" class="headerlink" title="第二次作业"></a>第二次作业</h5><ul>
+<li>分析：第二次作业的难点为三角函数的存储以及sum函数、自定义函数的处理，为此笔者新增了<strong>Num、Pretreat、Func三个类</strong><ul>
+<li>三角函数的存储：由于三角函数内可能为常数或是x的幂函数，已不是第一次作业用一个数组所能支撑了，为此笔者写了一个<strong>Num类</strong>来作为<strong>基元</strong>存储，其可以理解为项的层级，存储了项的常数、x的指数以及用<strong>Hashmap</strong>分别存了三角函数内常数和幂函数的内容及其指数。</li>
+<li>sum函数、自定义函数的处理：通过分析这两种函数可知，其皆可以通过一定规则的代换，将输入的<strong>expression</strong>处理成没有sum函数、自定义函数的形式，为此笔者设置了<strong>Func类</strong>来存自定义函数的<strong>函数名、自变量和表达式</strong>，再设置了<strong>Pretreat类</strong>对输入的初始expression进行处理，最终返回一个<strong>没有sum函数和自定义函数的expression_dealed</strong>供以后续的运算。</li>
+</ul>
+</li>
+<li>UML类图</li>
+</ul>
+<p><img src="/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/2.jpg" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><p>度量分析</p>
+<ul>
+<li>类</li>
+</ul>
+<p><img src="/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/2class.png" srcset="/img/loading.gif" lazyload alt="2class"></p>
+<ul>
+<li>方法</li>
+</ul>
+<p><img src="/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/2method.png" srcset="/img/loading.gif" lazyload alt="2method"></p>
+<ul>
+<li><p>程序优缺点分析及总结</p>
+<p>笔者认为第一次到第二次之间的跨度是最大的，三角函数的加入对原本的存储结构是一次巨大的冲击。在纠结了良久之后，笔者最终学习了讨论区同学暴力地将常数、x幂函数、三角函数全存在一个基元中的“暴力写法”，个人认为写得不尽人意，思路十分凌乱，为后续出bug埋下了伏笔。</p>
+<ul>
+<li>从程序来看，第二次作业存在诸多缺点，例如此种“暴力写法”过于生硬，只能说是为了解决第二次作业的任务刻意去实现，极大得缺乏可读性和可拓展性，这也是导致笔者在第三次作业中大量重构的原因，后面会讲到。除此之外，在第二次作业的迭代过程中，没有很好得兼顾到原有内容，这导致了在增添新功能时造成了代码的大量冗余，最后呈现出的就是代码乱七八糟的情况。</li>
+<li>从结果来看，本次作业出现了重大bug，虽然在修改bug后发现其实就是三角函数的处理中情况没有考虑完善，但我认为归根结底，是因为<strong>程序的复杂度过高而导致的思路不清晰</strong>所产生的bug。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="第三次作业"><a href="#第三次作业" class="headerlink" title="第三次作业"></a>第三次作业</h5><ul>
+<li><p>分析：第三次作业的核心在于嵌套，一是三角函数内可以为多项式，二是自定义函数可以互相嵌套</p>
+<ul>
+<li><p>三角函数内的多项式：多项式的复杂性使得第二次作业的“暴力存储”做法不再有效，深思熟虑后我们可以发现，答案其实早就藏在原本的思路中，在前两次作业里，我们对于expression的处理有着Factor➡Term➡Expr➡Factor的递归嵌套层次结构，这不就可以用来作为我们存储多项式的结构么，因此笔者痛下决心对代码进行了大规模重构，<strong>删去了原有的Factor类和Num类</strong>，替换为以下三个新类：</p>
+<ul>
+<li><strong>Mi类</strong>：其仅为<strong>单个因子</strong>，可为常数、x^exp、sin()^exp、cos()^exp，通过<strong>kind属性</strong>来表示当前Mi对象是什么种类，其中sin()、cos()有<strong>名为expr的Expr类对象</strong>体现了<strong>递归嵌套的结构特性</strong></li>
+<li><strong>Term类</strong>：表示多个因子相乘的<strong>项</strong>层级，使用ArrayList存储多个Mi对象</li>
+<li><strong>Expr类</strong>：表示多个项相加的<strong>多项式</strong>层级，使用ArrayList存储多个Term对象</li>
+</ul>
+<p>如此这般构造，再实现同层级之间的运算以及每一层级对于下层元素的添加方法，最后将Expr类作为<strong>基元</strong>，即可完美地<strong>支持多项式嵌套的需求</strong>了。</p>
+</li>
+<li><p>自定义函数互相嵌套：这一点其实较为简单，在第二次作业能实现对expression预处理的基础上，只需要对本次作业的expression<strong>重复进行多次预处理</strong>，直到新的expression中不再出现sum函数和自定义函数即可。</p>
+</li>
+</ul>
+</li>
+<li><p>UML类图</p>
+</li>
+</ul>
+<p><img src="/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/3.jpg" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><p>度量分析</p>
+<ul>
+<li>类</li>
+</ul>
+<p><img src="/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/3class.png" srcset="/img/loading.gif" lazyload alt="3class"></p>
+<ul>
+<li>方法</li>
+</ul>
+<p><img src="/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/3method-1.png" srcset="/img/loading.gif" lazyload alt="3method-1"></p>
+<p><img src="/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/3method-2.png" srcset="/img/loading.gif" lazyload alt="3method-2"></p>
+<p><img src="/20220326/OO%E7%AC%AC%E4%B8%80%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/3method-3.png" srcset="/img/loading.gif" lazyload alt="3method-3"></p>
+<ul>
+<li><p>程序优缺点分析及总结</p>
+<p>第三次作业的跨度较小，以至于许多同学在完成第二次作业时就已经实现了第三次的需求，变得十分轻松，但由于笔者的第二次作业完成得太烂，以至于在第三次作业中进行了大量重构，虽然花费了许多精力，但最后的结果是令人满意的。</p>
+<ul>
+<li>从程序来看，第三次采用了<strong>递归嵌套</strong>的结构来实现存储<strong>基元</strong>，笔者认为这是较为完美的一种写法，一是较优地实现了第三次的任务，二是程序结构明晰，以至于笔者在重构时一气呵成，未曾出现过因思路混乱而卡壳的情况，带来了一次令人身心愉悦的编程经历。</li>
+<li>从结果来看，第三次作业最后在互测过程中出现了一个小小的bug，是由于在优化三角函数中幂函数可去括号时，判断条件出错导致，总体来说差强人意。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="三次作业对比分析"><a href="#三次作业对比分析" class="headerlink" title="三次作业对比分析"></a>三次作业对比分析</h5><p>​	三次作业的逐步迭代成型已在<strong>每次作业的分析</strong>中阐述，就不在此赘述了，让我们把目光放在<strong>程序复杂度</strong>和<strong>程序出bug</strong>的方面上。纵观三次作业，笔者在第二次作业中出现了重大bug，得到了极低的分数，<strong>抛开复杂度本身较高的expression预处理不谈</strong>，通过对比前文给出的度量分析可以发现，第二次作业在<strong>存储基元Num类</strong>上相较于另外两次有着较高的复杂度，直观来理解，笔者在第二次作业中将对多项式的计算全部丢入了Num类中，致使该类承载了过多混乱的功能，一方面导致了程序实现功能易出错，另一方面使得笔者在编写程序时思路混乱，最终导致了bug的出现。</p>
+<p>​	为此，笔者总结出一个往后写代码的经验：<strong>“物以类聚”</strong>——在我们构造程序结构时，一个类应当仅实现<strong>其紧密相关的功能</strong>，一但其功能开始繁杂，我们就应开始考虑将类继续细化，亦或是继承拓展，如此便能使得程序与程序员始终保持清晰。</p>
+<h4 id="三、互测"><a href="#三、互测" class="headerlink" title="三、互测"></a>三、互测</h4><p>​	<em>互测是一次全新的体验，成功hack到人时着实给笔者带来了极大的成就感。</em></p>
+<p>​	笔者每周所花在写程序本身所耗费的时间过多，未曾有精力去模仿各位大牛写数据生成器以及自动评测机，所以没有加入“自动党”，最终只是略微通过读代码和一些简单策略来“找茬”，采用的策略核心是“盯紧优化部分”：</p>
+<p>​	这几次作业同学们在功能性其实都完成得很好，在hack了几次之后我渐渐发现大部人被hack问题主要都出在<strong>优化多项式长度时考虑不周</strong>，导致本因正确的结果出现奇奇怪怪的错误，例如符号不见了，0优化导致出现空项等现象，因此笔者在后来的互测阶段基本都是在尝试一些可能导致优化出错的数据，也取得了一定的hack成果。</p>
+<h4 id="四、心得体会"><a href="#四、心得体会" class="headerlink" title="四、心得体会"></a>四、心得体会</h4><p>​	OO的第一单元就此落下帷幕，不知不觉竟已收获如此之多。笔者在过去这个月里，逐渐熟悉了java语言，初步掌握了面向对象的编程思想与形式，在作业中学习了递归下降的构造思路，体会到了大代码量的工程建立与迭代，同时还接触了互测和写博客这些以往未曾尝试的东西，可谓是度过了极其丰富的一个月。在此笔者要大力感谢<strong>OO课程的老师和助教们</strong>，为我们提供了如此完备的理论教育和作业安排，让我们<strong>在学习和实践中快速成长</strong>。</p>
+<p>​	当然，在过去的这个月里我有很多的不足，其中最大的问题就是没能克服面对大工作量的任务时的<strong>心理障碍</strong>，总是要拖到最后才开始着手任务，导致了OO这门课程乃至这一个月的学习节奏都变得拖沓。所谓“<em><strong>过而不能知，是不智也；知而不能改，是不勇也。</strong></em>”在接下来的OO单元中，我要努力做出改变，克服心理障碍，只要思路成型就<strong>动手去写</strong>，相信会这对我自身的学习节奏会有很大的助益。</p>
+<h4 id="五、写在最后"><a href="#五、写在最后" class="headerlink" title="五、写在最后"></a>五、写在最后</h4><p>​	<em><strong>“是晚风，是余晖，是一道曙光，是未来可期”</strong></em></p>
+<p>​	OO的学习才刚刚开始，就让我们一同努力，一同进步吧！</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/" class="category-chain-item">面向对象单元总结</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/">#面向对象</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>OO第一单元总结</div>
+      <div>https://guangstrip.github.io/20220326/OO第一单元总结/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>ZhaoYanguang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年3月26日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/">
+              <span class="hint--top hint--rounded" aria-label="SA - 相同方式共享">
+                <i class="iconfont icon-sa"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/20220405/OSlab1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" title="OSlab1实验报告">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">OSlab1实验报告</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/20220320/OSlab0%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" title="OSlab0实验报告">
+                        <span class="hidden-mobile">OSlab0实验报告</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

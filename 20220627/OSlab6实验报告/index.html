@@ -1,0 +1,736 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/null">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="ZhaoYanguang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="lab6实验报告实验思考题Thinking6.1 示例代码中，父进程操作管道的写端，子进程操作管道的读端。如果现在想让父进程作为“读者”，代码应当如何修改？    读写进程的操作相同，这里只是父子进程的角色互换，因此对换彼此的操作即可。  1234567891011121314151617181920212223242526#include &lt;stdlib.h&gt;#include &amp;lt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OSlab6实验报告">
+<meta property="og:url" content="https://guangstrip.github.io/20220627/OSlab6%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/index.html">
+<meta property="og:site_name" content="光">
+<meta property="og:description" content="lab6实验报告实验思考题Thinking6.1 示例代码中，父进程操作管道的写端，子进程操作管道的读端。如果现在想让父进程作为“读者”，代码应当如何修改？    读写进程的操作相同，这里只是父子进程的角色互换，因此对换彼此的操作即可。  1234567891011121314151617181920212223242526#include &lt;stdlib.h&gt;#include &amp;lt">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guangstrip.github.io/20220627/OSlab6%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/image-20220627184643135.png">
+<meta property="article:published_time" content="2022-06-27T03:32:07.000Z">
+<meta property="article:modified_time" content="2022-07-06T10:42:52.404Z">
+<meta property="article:author" content="ZhaoYanguang">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://guangstrip.github.io/20220627/OSlab6%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/image-20220627184643135.png">
+  
+  
+  
+  <title>OSlab6实验报告 - 光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"guangstrip.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="OSlab6实验报告"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-06-27 11:32" pubdate>
+          2022年6月27日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          30 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">OSlab6实验报告</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="lab6实验报告"><a href="#lab6实验报告" class="headerlink" title="lab6实验报告"></a>lab6实验报告</h1><h2 id="实验思考题"><a href="#实验思考题" class="headerlink" title="实验思考题"></a>实验思考题</h2><h3 id="Thinking6-1"><a href="#Thinking6-1" class="headerlink" title="Thinking6.1"></a>Thinking6.1</h3><blockquote>
+<p>示例代码中，父进程操作管道的写端，子进程操作管道的读端。如果现在想让父进程作为“读者”，代码应当如何修改？ </p>
+</blockquote>
+<ul>
+<li>读写进程的操作相同，这里只是父子进程的角色互换，因此对换彼此的操作即可。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-type">int</span> fildes[<span class="hljs-number">2</span>];<br><span class="hljs-type">char</span> buf[<span class="hljs-number">100</span>];<br><span class="hljs-type">int</span> status;<br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span>&#123;<br>	status = pipe(fildes);<br>	<span class="hljs-keyword">if</span> (status == <span class="hljs-number">-1</span> ) &#123;<span class="hljs-comment">/* an error occurred */</span><br>		<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;error\n&quot;</span>);<br>	&#125;<br>	<span class="hljs-keyword">switch</span> (fork()) &#123;<br>		<span class="hljs-keyword">case</span> <span class="hljs-number">-1</span>: <span class="hljs-comment">/* Handle error */</span><br>			<span class="hljs-keyword">break</span>;<br>		<span class="hljs-keyword">case</span> <span class="hljs-number">0</span>: <span class="hljs-comment">//这是子进程，作为“写这”发送信息</span><br>			close(fildes[<span class="hljs-number">0</span>]); <br>			write(fildes[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;Hello world\n&quot;</span>, <span class="hljs-number">12</span>); <br>			close(fildes[<span class="hljs-number">1</span>]); <br>			<span class="hljs-built_in">exit</span>(EXIT_SUCCESS);<br>		<span class="hljs-keyword">default</span>: <span class="hljs-comment">//这是父进程，作为“读者”接受信息</span><br>            close(fildes[<span class="hljs-number">1</span>]); <br>			read(fildes[<span class="hljs-number">0</span>], buf, <span class="hljs-number">100</span>); <br>			<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;father-process read:%s&quot;</span>,buf); <br>			close(fildes[<span class="hljs-number">0</span>]); <br>			<span class="hljs-built_in">exit</span>(EXIT_SUCCESS);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="Thiking6-2"><a href="#Thiking6-2" class="headerlink" title="Thiking6.2"></a>Thiking6.2</h3><blockquote>
+<p>上面这种不同步修改 pp_ref 而导致的进程竞争问题在 user&#x2F;fd.c 中的dup 函数中也存在。请结合代码模仿上述情景，分析一下我们的 dup 函数中为什么会出现预想之外的情况？ </p>
+</blockquote>
+<ul>
+<li><p>dup函数的作用</p>
+<ul>
+<li>将一个文件描述符<code>oldfd</code>映射到另一个文件描述符<code>newfd</code>，是为了实现文件的多处打开。其中<code>syscall_mem_map</code>会修改pp_ref的值，因此可能会导致与<code>close()</code>类似的进程竞争问题。</li>
+</ul>
+</li>
+<li><p>进程竞争问题分析</p>
+<ul>
+<li><p>在原来的dup函数中，先添加映射了fd块本身，再映射文件存储的内容。</p>
+</li>
+<li><p>现考虑这一种情况（代码见下方）</p>
+<ul>
+<li>fork后先执行子进程，完成了<code>dup(p[1])</code>但还没开始<code>read(p[0])</code>，切换到父进程</li>
+<li>当执行到<code>dup(p[0])</code>建立了对p[0]的fd块本身的映射后，还未给对应pipe进行映射，发生中断切换回子进程</li>
+<li>可以发现刚好p[0]在子进程中<code>pp_ref+1</code>，pipe在父进程中<code>pp_ref+1</code>在子进程中不变，此时有<code>pageref([0]) == pageref(pipe)</code>，根据之前的设定我们判定此时写端关闭了，从而子进程退出导致出错。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (fork() == <span class="hljs-number">0</span>) &#123;<br>    dup(p[<span class="hljs-number">1</span>]);<br>    read(p[<span class="hljs-number">0</span>]);<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>    dup(p[<span class="hljs-number">0</span>]);<br>    write(p[<span class="hljs-number">1</span>]);<br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h3 id="Thinking6-3"><a href="#Thinking6-3" class="headerlink" title="Thinking6.3"></a>Thinking6.3</h3><blockquote>
+<p>为什么系统调用一定是原子操作呢？如果你觉得不是所有的系统调用都是原子操作，请给出反例。希望能结合相关代码进行分析。</p>
+</blockquote>
+<ul>
+<li><p>系统调用一定是原子操作。根据上述材料我们知道导致非原子错误的根源是中断，而后进程切换导致了这一情况。而在系统调用的过程中，紧随<code>SAVE_ALL宏</code>后的<code>CLI宏</code>关闭了中断，保证了这一次系统调用不会被中途打断，因此是原子性的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.macro CLI<br>    mfc0 t0, CP0_STATUS <br>    li t1, (STATUS_CU0 | 0x1) #将中断位置为1，表明不允许中断<br>    or t0, t1 <br>    xor t0, 0x1 <br>    mtc0 t0, CP0_STATUS <br>.endm<br></code></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="Thinking6-4"><a href="#Thinking6-4" class="headerlink" title="Thinking6.4"></a>Thinking6.4</h3><blockquote>
+<p>仔细阅读上面这段话，并思考下列问题</p>
+<p>• 按照上述说法控制 pipeclose 中 fd 和 pipe unmap 的顺序，是否可以解决上述场景的进程竞争问题？给出你的分析过程。</p>
+<p>• 我们只分析了 close 时的情形，那么对于 dup 中出现的情况又该如何解决？请模仿上述材料写写你的理解。</p>
+</blockquote>
+<ul>
+<li>可以解决。如若先解除fd的映射，重现上述的场景，我们发现本应出错的地方，此时<code>pageref(p[0]) == 1</code>而<code>pageref(pipe) == 3</code>，无论执行顺序如何都不可能出现<code>pageref(p[0]) == pageref(pipe)</code>的“间隙”，从而解决了该场景的进程竞争问题。</li>
+<li>与上述解决方法同理，因为总有<code>pageref(pipe) &gt;= pageref(p[])</code>,我们先完成对文件内容的映射，再完成对fd块的映射，这样<code>pageref(pipe)</code>总是先增加，就也不会出现<code>pageref(p[]) == pageref(pipe)</code>的间隙，成功避免了进程竞争导致的问题。</li>
+</ul>
+<h3 id="Thinking6-5"><a href="#Thinking6-5" class="headerlink" title="Thinking6.5"></a>Thinking6.5</h3><blockquote>
+<p>bss 在 ELF 中并不占空间，但 ELF 加载进内存后，bss 段的数据占据了空间，并且初始值都是 0。请回答你设计的函数是如何实现上面这点的？</p>
+</blockquote>
+<ul>
+<li>.bss段位于bin_size结束到sg_size之间，用<code>syscall_mem_alloc</code>为该段申请内存，就能使其占据空间了。除此之外，由于<code>syscall_mem_alloc</code>中为申请页面调用的<code>page_alloc</code>，使用了<code>bzero函数</code>已经将页面初始化为0，不需要再有额外的操作。具体操作如下</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">while</span> (i &lt; sgsize) &#123;<br>		<span class="hljs-keyword">if</span> ((r = syscall_mem_alloc(child_envid, va + i, PTE_V | PTE_R)) &lt; <span class="hljs-number">0</span>) &#123;<br>			<span class="hljs-keyword">return</span> r;<br>		&#125;<br>		i += BY2PG;<br>	&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="Thinking6-6"><a href="#Thinking6-6" class="headerlink" title="Thinking6.6"></a>Thinking6.6</h3><blockquote>
+<p>为什么我们的 *.b 的 text 段偏移值都是一样的，为固定值？</p>
+</blockquote>
+<ul>
+<li>因为在<code>user/user.lds</code>中我们对text段偏移值进行了设置，是固定值0x00400000</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">. = 0x00400000;<br>	_text = .; /* Text and read-only data */<br>	.text : &#123;<br>	*(.text)<br>	*(.fixup)<br>	*(.gnu.warning)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="Thinking6-7"><a href="#Thinking6-7" class="headerlink" title="Thinking6.7"></a>Thinking6.7</h3><blockquote>
+<p>在哪步，0 和 1 被” 安排” 为标准输入和标准输出？请分析代码执行流程，给出答案。</p>
+</blockquote>
+<ul>
+<li>在<code>user/init.c</code>中，调用了<code>opencons函数</code>创建控制台，并将0和1设置为了标准输入和标准输出，见下方代码</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">//user/console.c</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">opencons</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>        <span class="hljs-type">int</span> r; <br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Fd</span> *<span class="hljs-title">fd</span>;</span><br>        <span class="hljs-keyword">if</span> ((r = fd_alloc(&amp;fd)) &lt; <span class="hljs-number">0</span>)	<span class="hljs-keyword">return</span> r;<br>        <span class="hljs-keyword">if</span> ((r = syscall_mem_alloc(<span class="hljs-number">0</span>, (u_int)fd, PTE_V|PTE_R|PTE_LIBRARY)) &lt; <span class="hljs-number">0</span>)<br>            <span class="hljs-keyword">return</span> r;<br>        fd-&gt;fd_dev_id = devcons.dev_id;<br>        fd-&gt;fd_omode = O_RDWR;<br>        <span class="hljs-keyword">return</span> fd2num(fd);<br>&#125;<br><span class="hljs-comment">//user/init.c</span><br>	close(<span class="hljs-number">0</span>);<br>	<span class="hljs-keyword">if</span> ((r = opencons()) &lt; <span class="hljs-number">0</span>)<br>		user_panic(<span class="hljs-string">&quot;opencons: %e&quot;</span>, r);<br>	<span class="hljs-keyword">if</span> (r != <span class="hljs-number">0</span>)<br>		user_panic(<span class="hljs-string">&quot;first opencons used fd %d&quot;</span>, r);<br>	<span class="hljs-keyword">if</span> ((r = dup(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>)) &lt; <span class="hljs-number">0</span>)<br>		user_panic(<span class="hljs-string">&quot;dup: %d&quot;</span>, r);<br></code></pre></td></tr></table></figure>
+
+<h2 id="实验难点图示"><a href="#实验难点图示" class="headerlink" title="实验难点图示"></a>实验难点图示</h2><h3 id="进程竞争问题"><a href="#进程竞争问题" class="headerlink" title="进程竞争问题"></a>进程竞争问题</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>pageref(p[0])</th>
+<th>pageref(p[1])</th>
+<th>pageref(pipe)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>fork前</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>fork后</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+</tr>
+<tr>
+<td>子进程完成close(p[1])</td>
+<td>2</td>
+<td>1</td>
+<td>3</td>
+</tr>
+<tr>
+<td>父进程在close(p[0])中解除对pipe的映射</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>回到子进程</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+</tr>
+</tbody></table>
+<p>​	经过上述过程，在“回到子进程”时，<code>pageref(p[0]) == pageref(pipe)</code>导致误以为写端关闭，子进程关闭发生错误。</p>
+<h3 id="Shell的管道连接"><a href="#Shell的管道连接" class="headerlink" title="Shell的管道连接"></a>Shell的管道连接</h3><p>​	<img src="/20220627/OSlab6%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/image-20220627184643135.png" srcset="/img/loading.gif" lazyload alt="image-20220627184643135"></p>
+<h2 id="体会与感想"><a href="#体会与感想" class="headerlink" title="体会与感想"></a>体会与感想</h2><p>​	通过lab6的学习，了解了管道pipe的实现机制，同时对于Shell实现有了一定了解，算是对操作系统这两大组件有了进一步的理论性学习。但是相较于其他lab，由于lab6临近考期因此完成的比较匆忙，而且没有上机就没有花费精力对其进行细致深入的理解，只能算是粗略的学习并实现了一遍任务，这个伏笔或许需要在将来再回过头来学习补足。</p>
+<p>​	至此本学期的OS学习算是基本完成，从一开始的摸不着头脑到现在的得心应手，我学到了很多，也成长了许多，从一开始的OS小白到现在对于OS算是有了一定的了解与实现能力，一路上少不了老师与助教们的教导与帮助，在此感谢老师与助教们的辛勤付出与奉献，也祝老师和助教们在往后的工作学习顺利。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" class="category-chain-item">操作系统实验报告</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>OSlab6实验报告</div>
+      <div>https://guangstrip.github.io/20220627/OSlab6实验报告/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>ZhaoYanguang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年6月27日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/">
+              <span class="hint--top hint--rounded" aria-label="SA - 相同方式共享">
+                <i class="iconfont icon-sa"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/20220630/OSlab4-challenge%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" title="OSlab4-challenge实验报告">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">OSlab4-challenge实验报告</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/20220627/OO%E7%AC%AC%E5%9B%9B%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/" title="OO第四单元总结">
+                        <span class="hidden-mobile">OO第四单元总结</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

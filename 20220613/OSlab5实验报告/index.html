@@ -1,0 +1,775 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/null">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="ZhaoYanguang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="lab5实验报告实验思考题Thinking5.1 查阅资料，了解 Linux&#x2F;Unix 的 &#x2F;proc 文件系统是什么？有什么作用？ Windows 操作系统又是如何实现这些功能的？proc 文件系统这样的设计有什么好处和可以改进的地方？   &#x2F;proc文件系统是在内核中构建的一个伪文件系统，实现了一种内核和用户间信息交互的机制，通过它可以让用户实时与内核内部数据结构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OSlab5实验报告">
+<meta property="og:url" content="https://guangstrip.github.io/20220613/OSlab5%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/index.html">
+<meta property="og:site_name" content="光">
+<meta property="og:description" content="lab5实验报告实验思考题Thinking5.1 查阅资料，了解 Linux&#x2F;Unix 的 &#x2F;proc 文件系统是什么？有什么作用？ Windows 操作系统又是如何实现这些功能的？proc 文件系统这样的设计有什么好处和可以改进的地方？   &#x2F;proc文件系统是在内核中构建的一个伪文件系统，实现了一种内核和用户间信息交互的机制，通过它可以让用户实时与内核内部数据结构">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guangstrip.github.io/20220613/OSlab5%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/image-20220613091658713.png">
+<meta property="og:image" content="https://guangstrip.github.io/20220613/OSlab5%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/image-20220613092801173.png">
+<meta property="og:image" content="https://guangstrip.github.io/20220613/OSlab5%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/image-20220613094652147.png">
+<meta property="article:published_time" content="2022-06-13T03:31:57.000Z">
+<meta property="article:modified_time" content="2022-07-06T10:42:48.848Z">
+<meta property="article:author" content="ZhaoYanguang">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://guangstrip.github.io/20220613/OSlab5%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/image-20220613091658713.png">
+  
+  
+  
+  <title>OSlab5实验报告 - 光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"guangstrip.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="OSlab5实验报告"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-06-13 11:31" pubdate>
+          2022年6月13日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          43 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">OSlab5实验报告</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="lab5实验报告"><a href="#lab5实验报告" class="headerlink" title="lab5实验报告"></a>lab5实验报告</h1><h2 id="实验思考题"><a href="#实验思考题" class="headerlink" title="实验思考题"></a>实验思考题</h2><h3 id="Thinking5-1"><a href="#Thinking5-1" class="headerlink" title="Thinking5.1"></a>Thinking5.1</h3><blockquote>
+<p>查阅资料，了解 Linux&#x2F;Unix 的 &#x2F;proc 文件系统是什么？有什么作用？ Windows 操作系统又是如何实现这些功能的？proc 文件系统这样的设计有什么好处和可以改进的地方？</p>
+</blockquote>
+<ul>
+<li>&#x2F;proc文件系统是在内核中构建的一个伪文件系统，实现了一种内核和用户间信息交互的机制，通过它可以让用户<strong>实时</strong>与内核内部数据结构进行交互，获取相关信息。需要注意的是，这是一个伪文件系统，在使用中读取的“文件”，实际上是调用了一个<strong>接口</strong>，映射为内核内部一个数据结构被实时读取并且返回的字符串，呈现成文件的样子。</li>
+<li>windows系统中通过一系列的APIs实现了与内核的交互</li>
+<li>&#x2F;proc文件系统的优点是把与内核的交互简化为了与文件系统的交互，使得操作更加简便。可改进的地方可以参考后来的&#x2F;sysfs文件系统，相比之下，&#x2F;proc系统缺少规则与结构，导出的虚拟文件会有内部格式，增加了操作的复杂度，而&#x2F;sysfs的数据格式则更统一，操作更加简化。</li>
+</ul>
+<h3 id="Thinking5-2"><a href="#Thinking5-2" class="headerlink" title="Thinking5.2"></a>Thinking5.2</h3><blockquote>
+<p>如果我们通过 kseg0 读写设备，我们对于设备的写入会缓存到 Cache 中。通过 kseg0 访问设备是一种错误的行为，在实际编写代码的时候这么做会引发不可预知的问题。请你思考：这么做这会引起什么问题？对于不同种类的设备（如我们提到的串口设备和 IDE 磁盘）的操作会有差异吗？可以从缓存的性质和缓存刷新的策略来考虑。</p>
+</blockquote>
+<ul>
+<li>在Cache缓存内存内容后，很有可能出现外部设备响应并修改内存后，缓存并未得到更新，最终引发不可预知的问题。</li>
+<li>有差异，拿题目中的串口设备与IDE硬盘来比较，串口设备的读写十分频繁，则其发生错误的概率会高于IDE磁盘。</li>
+</ul>
+<h3 id="Thinking5-3"><a href="#Thinking5-3" class="headerlink" title="Thinking5.3"></a>Thinking5.3</h3><blockquote>
+<p>比较 MOS 操作系统的文件控制块和 Unix&#x2F;Linux 操作系统的 inode 及相关概念，试述二者的不同之处。</p>
+</blockquote>
+<ul>
+<li>MOS操作系统中的文件控制块具体实现为File结构体，里面存储了文件名、文件大小、文件类型、文件具体内容指针、文件所述目录等内容。</li>
+<li>而Unix&#x2F;Linux 操作系统的 文件控制块可以粗略理解为<strong>文件名+索引节点（inode）</strong>，因为文件查找只需要比较文件名，如此可以减少查找时的信息冗余。而索引节点inode则是一个指向文件其余具体信息的指针。</li>
+<li>题中两者相比较而言，MOS系统中的文件控制块是文件具体信息的结合体，而inode则只是指向具体信息的一个指针。前者结构更加<strong>完整严谨</strong>，而后者则是更加<strong>灵活高效</strong>。</li>
+</ul>
+<h3 id="Thinking5-4"><a href="#Thinking5-4" class="headerlink" title="Thinking5.4"></a>Thinking5.4</h3><blockquote>
+<p>查找代码中的相关定义，试回答一个磁盘块中最多能存储多少个文件 控制块？一个目录下最多能有多少个文件？我们的文件系统支持的单个文件最大为 多大？</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> BY2BLK		BY2PG <span class="hljs-comment">//一个块的大小正好是一页4096Byte</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BIT2BLK		(BY2BLK*8) <span class="hljs-comment">//这里算的是BLK的bit，所以自然是*8</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BY2FILE     256 <span class="hljs-comment">//一个file结构体的大小 256Byte</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NBLOCK 1024  <span class="hljs-comment">//一个disk里面有1024块</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FILE2BLK  (BY2BLK/sizeof(struct File)) <span class="hljs-comment">//一个块里面有多少个file结构体</span></span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>一个磁盘块大小为4096B，一个文件控制块大小为256B，因此一个磁盘块最多能存储16个文件控制块</p>
+</li>
+<li><p>一个指向磁盘块的指针为4B ，则一个目录算上直接和间接指针所能指向的磁盘块数总共为（4096B&#x2F;4B）即1024个，因此能存的文件个数就是（1024*16）即16384个</p>
+</li>
+<li><p>与目录类似，单个文件最多可以用1024个磁盘块来存，则最大为（1024*4KB）即4MB。</p>
+</li>
+</ul>
+<h3 id="Thinking5-5"><a href="#Thinking5-5" class="headerlink" title="Thinking5.5"></a>Thinking5.5</h3><blockquote>
+<p>请思考，在满足磁盘块缓存的设计的前提下，我们实验使用的内核支持的最大磁盘大小是多少？</p>
+</blockquote>
+<ul>
+<li>要满足磁盘块缓存的设计，缓冲区需要与磁盘的各磁盘块一一对应，因此能支持的最大磁盘大小就是缓冲区的大小<code>DISKMAX 0x40000000</code>，即1GB。</li>
+</ul>
+<h3 id="Thinking5-6"><a href="#Thinking5-6" class="headerlink" title="Thinking5.6"></a>Thinking5.6</h3><blockquote>
+<p>如果将 DISKMAX 改成 0xC0000000, 超过用户空间，我们的文件系统还能正常工作吗？为什么？</p>
+</blockquote>
+<ul>
+<li>不能。首先，文件系统是在用户态下实现的，改成0xC0000000涉及到了内核空间，在用户态下无法正常访问。其次，映射到内核空间会影响到内核存储的系统内容，导致系统异常。</li>
+</ul>
+<h3 id="Thinking5-7"><a href="#Thinking5-7" class="headerlink" title="Thinking5.7"></a>Thinking5.7</h3><blockquote>
+<p>在 lab5 中，fs&#x2F;fs.h、include&#x2F;fs.h 等文件中出现了许多结构体和宏定 义，写出你认为比较重要或难以理解的部分，并进行解释。</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">//磁盘文件系统相关宏定义</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BY2BLK		BY2PG <span class="hljs-comment">//一个块的大小正好是一页4096Byte</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BIT2BLK		(BY2BLK*8) <span class="hljs-comment">//这里算的是BLK的bit，所以自然是*8</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BY2FILE     256 <span class="hljs-comment">//一个file结构体的大小 256Byte</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NBLOCK 1024  <span class="hljs-comment">//一个disk里面有1024块</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FILE2BLK  (BY2BLK/sizeof(struct File)) <span class="hljs-comment">//一个块里面有多少个file结构体</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NDIRECT         10 <span class="hljs-comment">//直接指针最多能有10个</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NINDIRECT       (BY2BLK/4) <span class="hljs-comment">//间接指针的个数，为1024（包括了占位的10个直接指针）</span></span><br><br><span class="hljs-comment">//相关结构体</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Fsreq_</span>* &#123;</span><br>    ...<br>&#125; <span class="hljs-comment">//这个是为fsipc中每一项服务专门建立的Fsreq结构体，用于给serve进程传递响应服务所需要的数据</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Thinking5-8"><a href="#Thinking5-8" class="headerlink" title="Thinking5.8"></a>Thinking5.8</h3><blockquote>
+<p>阅读 user&#x2F;file.c，你会发现很多函数中都会将一个 struct Fd* 型的 指针转换为 struct Filefd* 型的指针，请解释为什么这样的转换可行。</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Filefd</span> &#123;</span><br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Fd</span> <span class="hljs-title">f_fd</span>;</span><br>        u_int f_fileid;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">File</span> <span class="hljs-title">f_file</span>;</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>观察<code>user/fd.h</code>中对于<code>struct Filefd</code>的定义我们可以发现，<code>struct Fd</code>是Filefd的第一个成员，因此本质上指向他们的<strong>地址是相同的</strong>，只要通过指针类型转换，就可以访问其对应的内容。</li>
+</ul>
+<h3 id="Thinking5-9"><a href="#Thinking5-9" class="headerlink" title="Thinking5.9"></a>Thinking5.9</h3><blockquote>
+<p>在lab4 的实验中我们实现了极为重要的fork 函数。那么fork 前后的父子进程是否会共享文件描述符和定位指针呢？请在完成练习5.8和5.9的基础上编写一个程序进行验证。</p>
+</blockquote>
+<ul>
+<li><p>会共享（这不就是lab5-2-exam的内容么）</p>
+<p>验证程序：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> r, fdnum, n;<br><span class="hljs-type">char</span> buf[<span class="hljs-number">520</span>];<br><span class="hljs-keyword">if</span> ((r = open(<span class="hljs-string">&quot;/motd&quot;</span>, O_RDWR)) &lt; <span class="hljs-number">0</span>) &#123;<br>    user_panic(<span class="hljs-string">&quot;open wrong\n&quot;</span>);<br>&#125;<br>fdnum = r;<br><span class="hljs-keyword">if</span> ((r = fwritef(fdnum, <span class="hljs-string">&quot;abcdefghijklmnopqrstuvwxyz&quot;</span>)) &lt; <span class="hljs-number">0</span>) &#123;<br>    user_panic(<span class="hljs-string">&quot;fwritef wrong\n&quot;</span>);<br>&#125;<br><span class="hljs-keyword">if</span> ((r = fork()) == <span class="hljs-number">0</span>) &#123;<br>    n = read(fdnum, buf, <span class="hljs-number">5</span>);<br>    writef(<span class="hljs-string">&quot;child read is %s\n&quot;</span>, buf);<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>    n = read(fdnum, buf, <span class="hljs-number">5</span>);<br>    writef(<span class="hljs-string">&quot;father read is %s\n, buf&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">father read is abcde<br>child read is fghij<br></code></pre></td></tr></table></figure>
+
+<p>不难验证在fork创建父子进程后，两者<strong>共享</strong>了文件描述符和定位指针，导致父进程读了abcde后，子进程接着往下读了fghij</p>
+</li>
+</ul>
+<h3 id="Thinking5-10"><a href="#Thinking5-10" class="headerlink" title="Thinking5.10"></a>Thinking5.10</h3><blockquote>
+<p>请解释Fd, Filefd, Open 结构体及其各个域的作用。比如各个结构体会在哪些过程中被使用，是否对应磁盘上的物理实体还是单纯的内存数据等。说明形式自定，要求简洁明了，可大致勾勒出文件系统数据结构与物理实体的对应关系与设计框架。</p>
+</blockquote>
+<ul>
+<li><code>struct Fd</code>：文件描述符，用于在打开文件时存取相关信息<ul>
+<li><code>fd_dev_id</code> 对应外设的id</li>
+<li><code>fd_offset</code> 读写位置的偏移量，避免了从头读到尾的浪费</li>
+<li><code>fd_omode</code> 记录打开文件的模式</li>
+</ul>
+</li>
+<li><code>Filefd</code>：可以看作是一个更全面记录文件信息的<strong>整合体</strong><ul>
+<li><code>f_fd</code> 存储该文件的文件描述符Fd</li>
+<li><code>f_fileid</code> 记录该文件的id</li>
+<li><code>f_file</code> 存储该文件的文件控制块</li>
+</ul>
+</li>
+<li><code>Open</code>：用于在<strong>打开文件这一过程</strong>中来抽象地整合信息<ul>
+<li><code>*o_file</code> 指向被打开文件的文件控制块Fd</li>
+<li><code>o_fileid</code> 记录该文件的id</li>
+<li><code>o_mode</code> 记录文件的打开模式</li>
+<li><code>*o_ff</code> 指向该文件的信息整合体Filefd</li>
+</ul>
+</li>
+<li>三者都是单纯的内存数据，抽象层次由低到高为<code>Fd→Filefd→Open</code></li>
+</ul>
+<h3 id="Thinking5-11"><a href="#Thinking5-11" class="headerlink" title="Thinking5.11"></a>Thinking5.11</h3><blockquote>
+<p>UML时序图中有多种不同形式的箭头，请结合UML 时序图的规范，解释这些不同箭头的差别，并思考我们的操作系统是如何实现对应类型的进程间通信的。</p>
+</blockquote>
+<ul>
+<li><p>UML时序图中一共有六种消息</p>
+<ul>
+<li><p>同步消息：用黑三角箭头搭配实线表示。表现为发送者传递消息给接收者后<strong>暂停活动</strong>，等待回应。</p>
+</li>
+<li><p>异步消息：用开三角箭头搭配实现表示。表现为发送消息后，发送者不等待回应<strong>立即</strong>开始另一活动。</p>
+</li>
+<li><p>返回消息：用开三角箭头搭配虚线表示。和同步消息结合使用，唤醒同步消息的发送者。</p>
+</li>
+<li><p>创建消息：用开三角箭头搭配虚线，并注明<code>&lt;&lt;create&gt;&gt;</code>。用于创建一个实例。</p>
+</li>
+<li><p>摧毁消息：用黑三角箭头搭配实现表示，并注明<code>&lt;&lt;destroy&gt;&gt;</code>。用于摧毁一个实例</p>
+</li>
+<li><p>Lost and Found消息：用黑色实心点、黑三角箭头搭配实线表示。用于不关心发送者或接收者的情况。</p>
+</li>
+</ul>
+</li>
+<li><p>如何实现进程通信</p>
+<ul>
+<li>目前我们操作系统实现的是<strong>同步信息和返回信息</strong>的进程通信<ul>
+<li>某一进程调用<code>ipc_recv</code>，向负责响应的进程<strong>发出同步消息</strong>并暂停活动，即完成进程切换</li>
+<li><strong>响应进程</strong>收到消息后唤醒，通过<code>ipc_send</code>向对应地址映射内容完成<strong>返回消息的发送</strong>，再通过进程切换唤醒原来的进程</li>
+</ul>
+</li>
+<li>在lab4-1-Extra中我们还实现了异步消息的进程通信<ul>
+<li>不同于之前的进程通信，进程在调用<code>ipc_recv</code>后不通过进程却换来暂停活动，而是将请求记录下来，然后<strong>直接开始</strong>下一活动</li>
+<li>响应进程调用<code>ipc_send</code>，则是通过请求记录，逐一进行处理</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Thinking5-12"><a href="#Thinking5-12" class="headerlink" title="Thinking5.12"></a>Thinking5.12</h3><blockquote>
+<p>阅读serv.c&#x2F;serve函数的代码，我们注意到函数中包含了一个死循环for (;;) {…}，为什么这段代码不会导致整个内核进入panic 状态？</p>
+</blockquote>
+<ul>
+<li>serve进程是一个提供文件系统服务的进程，只有在其他进程向其发起请求的时候才会被唤醒，并且完成响应后再度沉睡。<strong>具体实现</strong>为：紧跟着<code>for (;;)</code>之后就有一句<code>req = ipc_recv(&amp;whom, REQVA, &amp;perm);</code>可见在每次循环的开始调用**<code>ipc_recv</code><strong>从而让出当前进程的位置陷入沉睡，直到其他进程调用文件系统相关接口时，调用了对应的<code>ipc_send</code>，serve进程被唤醒完成服务后</strong>又进入下一次循环**。</li>
+</ul>
+<h2 id="实验难点图示"><a href="#实验难点图示" class="headerlink" title="实验难点图示"></a>实验难点图示</h2><h3 id="①文件存储结构"><a href="#①文件存储结构" class="headerlink" title="①文件存储结构"></a>①文件存储结构</h3><ul>
+<li>文件查询、文件创建都需要通过下图的存储逻辑进行索引查找。</li>
+</ul>
+<p><img src="/20220613/OSlab5%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/image-20220613091658713.png" srcset="/img/loading.gif" lazyload alt="image-20220613091658713"></p>
+<h3 id="②磁盘块缓冲工作流程"><a href="#②磁盘块缓冲工作流程" class="headerlink" title="②磁盘块缓冲工作流程"></a>②磁盘块缓冲工作流程</h3><ul>
+<li>实际上我们在用户态下对磁盘数据的读写都是<strong>已经映射到块缓冲区</strong>的内容，操作时始终都是在内存上进行的。而这样的目的是，我们可以通过缓冲区的一个块，获取到不同磁盘上对应块的内容，只需要对该块解除对上一磁盘的映射，并建立对新磁盘的映射就可以实现，从而使得电脑有了很大的存储空间。</li>
+</ul>
+<p><img src="/20220613/OSlab5%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/image-20220613092801173.png" srcset="/img/loading.gif" lazyload alt="image-20220613092801173"></p>
+<h3 id="③文件系统服务流程"><a href="#③文件系统服务流程" class="headerlink" title="③文件系统服务流程"></a>③文件系统服务流程</h3><p><img src="/20220613/OSlab5%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/image-20220613094652147.png" srcset="/img/loading.gif" lazyload alt="image-20220613094652147"></p>
+<h2 id="体会与感想"><a href="#体会与感想" class="headerlink" title="体会与感想"></a>体会与感想</h2><p>​	lab5的学习总体来说难度中规中矩，抽象层次明晰，对我理解操作系统不同层次间的交互模式起到了很大的帮助。在学习过程中，磁盘块、文件块、索引指针等概念给我造成了一定的困扰，分不清其中的转换关系，但在学习到块缓冲的部分后，我逐渐掌握了精髓，就是要分清楚文件系统中<strong>物理与虚拟</strong>、<strong>承载与被承载</strong>的角色，如此文件系统的结构便清晰明了了起来。操作系统的概念多且绕，但是在抓住某个关键点去理解后，便会有豁然开朗的感觉。</p>
+<p>​	至此OS的每周上机就告一段落了，虽然很折磨，但也变相压迫我加深了对每个lab的理解，同时千辛万苦做出Extra后也让人感到身心愉悦，在此十分感谢课程组的课程安排以及助教们的辛勤付出。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" class="category-chain-item">操作系统实验报告</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>OSlab5实验报告</div>
+      <div>https://guangstrip.github.io/20220613/OSlab5实验报告/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>ZhaoYanguang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年6月13日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/">
+              <span class="hint--top hint--rounded" aria-label="SA - 相同方式共享">
+                <i class="iconfont icon-sa"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/20220627/OO%E7%AC%AC%E5%9B%9B%E5%8D%95%E5%85%83%E6%80%BB%E7%BB%93/" title="OO第四单元总结">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">OO第四单元总结</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/20220608/OSlab5%E7%AC%94%E8%AE%B0/" title="OSlab5笔记">
+                        <span class="hidden-mobile">OSlab5笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
